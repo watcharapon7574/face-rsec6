@@ -149,6 +149,24 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
             </div>
           )}
 
+          {/* Capturing overlay */}
+          {phase === 'capturing' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/70 backdrop-blur-sm">
+              <ScanFace className="w-16 h-16 text-blue-400 animate-pulse mb-4" />
+              <p className="text-white font-semibold">กำลังวิเคราะห์ใบหน้า...</p>
+              <p className="text-slate-400 text-xs mt-1">กรุณารอสักครู่</p>
+            </div>
+          )}
+
+          {/* Saving overlay */}
+          {phase === 'saving' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/70 backdrop-blur-sm">
+              <Loader2 className="w-16 h-16 text-emerald-400 animate-spin mb-4" />
+              <p className="text-white font-semibold">กำลังบันทึกข้อมูลใบหน้า...</p>
+              <p className="text-slate-400 text-xs mt-1">({samples.length}/{FACE_MATCH.ENROLLMENT_SAMPLES} ภาพ)</p>
+            </div>
+          )}
+
           {/* Progress indicator */}
           <div className="absolute top-4 left-4 right-4 flex gap-2">
             {Array.from({ length: FACE_MATCH.ENROLLMENT_SAMPLES }).map((_, i) => (
