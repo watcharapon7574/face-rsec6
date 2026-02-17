@@ -25,7 +25,8 @@ export default function Home() {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      const v = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
+      navigator.serviceWorker.register(`/sw.js?v=${v}`).catch(() => {});
     }
   }, []);
 

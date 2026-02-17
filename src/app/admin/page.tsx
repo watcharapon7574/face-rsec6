@@ -13,6 +13,7 @@ import {
   Plus,
   Trash2,
   Save,
+  Pencil,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -38,6 +39,7 @@ export default function AdminPage() {
   // Teachers
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [newTeacher, setNewTeacher] = useState({ teacher_id: '', full_name: '', position: '', location_id: '', pin_code: '1234' });
+  const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
 
   // Locations
   const [locations, setLocations] = useState<Location[]>([]);
@@ -129,6 +131,20 @@ export default function AdminPage() {
   const deleteTeacher = async (id: string, name: string) => {
     if (!confirm(`ลบครู "${name}" ?`)) return;
     await supabase.from('teachers').delete().eq('id', id);
+    fetchTeachers();
+  };
+
+  const updateTeacher = async (t: Teacher) => {
+    const { error } = await supabase.from('teachers').update({
+      teacher_id: t.teacher_id,
+      full_name: t.full_name,
+      position: t.position,
+      pin_code: t.pin_code,
+      is_admin: t.is_admin,
+      is_active: t.is_active,
+    }).eq('id', t.id);
+    if (error) { alert(error.code === '23505' ? 'รหัสครูซ้ำ' : error.message); return; }
+    setEditingTeacher(null);
     fetchTeachers();
   };
 
@@ -297,24 +313,58 @@ export default function AdminPage() {
               <button onClick={addTeacher} className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition">เพิ่มครู</button>
             </div>
 
-            <p className="text-slate-400 text-xs mb-3">ทั้งหมด {teachers.length} คน</p>
+            <p className="text-slate-400 text-xs mb-3">ทั้งหมด {teachers.length} คน (แตะเพื่อแก้ไข)</p>
             <div className="space-y-2">
               {teachers.map(t => (
-                <div key={t.id} className="bg-slate-800/60 rounded-xl p-3 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white text-sm font-medium">{t.full_name}</span>
-                      {t.is_admin && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">Admin</span>}
-                      {t.enrollment_status === 'enrolled' && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">ลงทะเบียนใบหน้าแล้ว</span>}
-                      {t.enrollment_status === 'none' && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ยังไม่ลงทะเบียน</span>}
-                      {t.enrollment_status === 'revoked' && <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded">ถูกยกเลิก</span>}
+                <div key={t.id} className="bg-slate-800/60 rounded-xl p-3">
+                  {editingTeacher?.id === t.id ? (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><label className="text-slate-500 text-[10px]">รหัสครู</label>
+                          <input value={editingTeacher.teacher_id} onChange={e => setEditingTeacher({ ...editingTeacher, teacher_id: e.target.value.toUpperCase() })} className={`w-full ${inputClass}`} /></div>
+                        <div><label className="text-slate-500 text-[10px]">ชื่อ-นามสกุล</label>
+                          <input value={editingTeacher.full_name} onChange={e => setEditingTeacher({ ...editingTeacher, full_name: e.target.value })} className={`w-full ${inputClass}`} /></div>
+                        <div><label className="text-slate-500 text-[10px]">ตำแหน่ง</label>
+                          <input value={editingTeacher.position || ''} onChange={e => setEditingTeacher({ ...editingTeacher, position: e.target.value })} className={`w-full ${inputClass}`} /></div>
+                        <div><label className="text-slate-500 text-[10px]">PIN</label>
+                          <input value={editingTeacher.pin_code} onChange={e => setEditingTeacher({ ...editingTeacher, pin_code: e.target.value.replace(/\D/g, '') })} maxLength={6} inputMode="numeric" className={`w-full ${inputClass}`} /></div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+                          <input type="checkbox" checked={editingTeacher.is_admin} onChange={e => setEditingTeacher({ ...editingTeacher, is_admin: e.target.checked })} className="accent-amber-500" />
+                          Admin
+                        </label>
+                        <label className="flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+                          <input type="checkbox" checked={editingTeacher.is_active} onChange={e => setEditingTeacher({ ...editingTeacher, is_active: e.target.checked })} className="accent-emerald-500" />
+                          ใช้งาน
+                        </label>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => updateTeacher(editingTeacher)} className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs">บันทึก</button>
+                        <button onClick={() => setEditingTeacher(null)} className="flex-1 py-1.5 bg-slate-600 text-white rounded-lg text-xs">ยกเลิก</button>
+                      </div>
                     </div>
-                    <div className="text-slate-500 text-xs">
-                      {t.teacher_id} · {t.position || '-'} · PIN: {t.pin_code}
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 cursor-pointer" onClick={() => setEditingTeacher({ ...t })}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-white text-sm font-medium">{t.full_name}</span>
+                          {t.is_admin && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">Admin</span>}
+                          {!t.is_active && <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded">ปิดใช้งาน</span>}
+                          {t.enrollment_status === 'enrolled' && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">ลงทะเบียนใบหน้าแล้ว</span>}
+                          {t.enrollment_status === 'none' && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ยังไม่ลงทะเบียน</span>}
+                        </div>
+                        <div className="text-slate-500 text-xs">
+                          {t.teacher_id} · {t.position || '-'} · PIN: {t.pin_code}
+                        </div>
+                        {t.locations && <div className="text-blue-400 text-xs mt-0.5"><MapPin className="w-3 h-3 inline mr-0.5" />{(t.locations as unknown as Location).short_name}</div>}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setEditingTeacher({ ...t })} className="p-2 text-slate-500 hover:text-blue-400 transition"><Pencil className="w-4 h-4" /></button>
+                        <button onClick={() => deleteTeacher(t.id, t.full_name)} className="p-2 text-slate-500 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                      </div>
                     </div>
-                    {t.locations && <div className="text-blue-400 text-xs mt-0.5"><MapPin className="w-3 h-3 inline mr-0.5" />{(t.locations as unknown as Location).short_name}</div>}
-                  </div>
-                  <button onClick={() => deleteTeacher(t.id, t.full_name)} className="p-2 text-slate-500 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                  )}
                 </div>
               ))}
             </div>
