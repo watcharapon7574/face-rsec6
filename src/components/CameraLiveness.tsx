@@ -32,6 +32,16 @@ export default function CameraLiveness({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({
+    tfReady: false,
+    modelLoaded: false,
+    loopRunning: false,
+    facesFound: 0,
+    keypointsCount: 0,
+    videoReady: 0,
+    lastError: '',
+    frameCount: 0,
+  });
 
   const stopCamera = useCallback(() => {
     if (animFrameRef.current) {
@@ -78,6 +88,7 @@ export default function CameraLiveness({
     try {
       const tf = await import('@tensorflow/tfjs');
       await tf.ready();
+      setDebugInfo((p) => ({ ...p, tfReady: true }));
 
       const faceLandmarksDetection = await import(
         '@tensorflow-models/face-landmarks-detection'
@@ -91,9 +102,11 @@ export default function CameraLiveness({
       });
 
       detectorRef.current = detector;
+      setDebugInfo((p) => ({ ...p, modelLoaded: true }));
       return detector;
     } catch (err) {
       console.error('Model load error:', err);
+      setDebugInfo((p) => ({ ...p, lastError: `model: ${err}` }));
       setError('ไม่สามารถโหลดโมเดลตรวจจับใบหน้าได้');
       return null;
     }
@@ -112,6 +125,11 @@ export default function CameraLiveness({
       !videoRef.current ||
       videoRef.current.readyState < 2
     ) {
+      setDebugInfo((p) => ({
+        ...p,
+        loopRunning: true,
+        videoReady: videoRef.current?.readyState ?? -1,
+      }));
       animFrameRef.current = requestAnimationFrame(detectLoop);
       return;
     }
@@ -134,6 +152,15 @@ export default function CameraLiveness({
       const faces = await detector.estimateFaces(videoRef.current, {
         flipHorizontal: false,
       });
+
+      setDebugInfo((p) => ({
+        ...p,
+        loopRunning: true,
+        videoReady: videoRef.current?.readyState ?? -1,
+        facesFound: faces.length,
+        keypointsCount: faces[0]?.keypoints?.length ?? 0,
+        frameCount: p.frameCount + 1,
+      }));
 
       if (faces.length > 0) {
         const landmarks = faces[0].keypoints;
@@ -193,6 +220,7 @@ export default function CameraLiveness({
       }
     } catch (err) {
       console.error('Detection error:', err);
+      setDebugInfo((p) => ({ ...p, lastError: `detect: ${err}` }));
     }
 
     animFrameRef.current = requestAnimationFrame(detectLoop);
@@ -287,6 +315,32 @@ export default function CameraLiveness({
         {cameraReady && !error && (
           <div className="absolute top-0 left-0 right-0 p-2 pointer-events-none">
             <div className="bg-black/70 rounded-lg p-2 text-[10px] font-mono text-white space-y-0.5">
+              {/* Pipeline status */}
+              <div className="text-[9px] text-gray-400 border-b border-gray-600 pb-1 mb-1">
+                <span className={debugInfo.tfReady ? 'text-green-400' : 'text-red-400'}>TF:{debugInfo.tfReady ? 'OK' : 'NO'}</span>
+                {' | '}
+                <span className={debugInfo.modelLoaded ? 'text-green-400' : 'text-red-400'}>Model:{debugInfo.modelLoaded ? 'OK' : 'NO'}</span>
+                {' | '}
+                <span className={debugInfo.loopRunning ? 'text-green-400' : 'text-red-400'}>Loop:{debugInfo.loopRunning ? 'OK' : 'NO'}</span>
+                {' | '}
+                <span>Vid:{debugInfo.videoReady}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Faces found:</span>
+                <span className={debugInfo.facesFound > 0 ? 'text-green-400' : 'text-red-400'}>{debugInfo.facesFound}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Keypoints:</span>
+                <span className={debugInfo.keypointsCount >= 468 ? 'text-green-400' : 'text-yellow-400'}>{debugInfo.keypointsCount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Frames:</span>
+                <span>{debugInfo.frameCount}</span>
+              </div>
+              {debugInfo.lastError && (
+                <div className="text-red-400 text-[8px] break-all">{debugInfo.lastError}</div>
+              )}
+              <div className="border-t border-gray-600 pt-1 mt-1" />
               <div className="flex justify-between">
                 <span>EAR:</span>
                 <span className={livenessState.lastEAR < LIVENESS.BLINK_THRESHOLD ? 'text-red-400 font-bold' : 'text-green-400'}>
@@ -294,18 +348,10 @@ export default function CameraLiveness({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Threshold:</span>
-                <span className="text-yellow-400">{LIVENESS.BLINK_THRESHOLD}</span>
-              </div>
-              <div className="flex justify-between">
                 <span>Eye closed:</span>
                 <span className={livenessState.eyeWasClosed ? 'text-red-400' : 'text-green-400'}>
                   {livenessState.eyeWasClosed ? 'YES' : 'NO'}
                 </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Closed frames:</span>
-                <span>{livenessState.closedFrameCount}/{LIVENESS.CLOSED_FRAMES_REQUIRED}</span>
               </div>
               <div className="flex justify-between">
                 <span>Blinks:</span>
@@ -317,13 +363,7 @@ export default function CameraLiveness({
                   {livenessState.headMoved ? 'YES' : 'NO'}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span>Face:</span>
-                <span className={livenessState.faceDetected ? 'text-green-400' : 'text-red-400'}>
-                  {livenessState.faceDetected ? 'DETECTED' : 'NONE'}
-                </span>
-              </div>
-              {/* EAR bar visualization */}
+              {/* EAR bar */}
               <div className="mt-1">
                 <div className="w-full h-2 bg-gray-700 rounded relative">
                   <div
@@ -334,11 +374,6 @@ export default function CameraLiveness({
                     className="absolute h-full w-px bg-yellow-400"
                     style={{ left: `${LIVENESS.BLINK_THRESHOLD / 0.4 * 100}%` }}
                   />
-                </div>
-                <div className="flex justify-between text-[8px] text-gray-400 mt-0.5">
-                  <span>0</span>
-                  <span>T={LIVENESS.BLINK_THRESHOLD}</span>
-                  <span>0.4</span>
                 </div>
               </div>
             </div>
