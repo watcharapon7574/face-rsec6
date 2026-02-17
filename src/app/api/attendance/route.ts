@@ -57,9 +57,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check time window
+    // Check time window (use Thai time, UTC+7)
     const now = new Date();
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const thaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+    const currentMinutes = thaiNow.getHours() * 60 + thaiNow.getMinutes();
     const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 
     if (action === 'check_in') {
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     // Resolve location
     const locationForRecord = location_id || teacher.location_id;
-    const today = now.toISOString().split('T')[0];
+    const today = `${thaiNow.getFullYear()}-${String(thaiNow.getMonth() + 1).padStart(2, '0')}-${String(thaiNow.getDate()).padStart(2, '0')}`;
 
     if (action === 'check_in') {
       // Device uniqueness per day
