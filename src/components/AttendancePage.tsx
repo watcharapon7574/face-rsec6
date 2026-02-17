@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getCurrentPosition, isWithinRadius } from '@/lib/geolocation';
 import { getDeviceFingerprint } from '@/lib/device-fingerprint';
 import { getTimeStatus } from '@/lib/time-utils';
-import { loadFaceApi, extractDescriptor, isMatch } from '@/lib/face-recognition';
+import { loadFaceApi, extractDescriptor, isMatch, blendDescriptors } from '@/lib/face-recognition';
 import { ORG_SHORT } from '@/lib/constants';
 import type { AttendanceSettings, Location, AttendanceAction, UserSession } from '@/lib/types';
 import {
@@ -48,6 +48,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
   const [currentTime, setCurrentTime] = useState('');
   const [faceMatchScore, setFaceMatchScore] = useState<number | null>(null);
   const [storedDescriptor, setStoredDescriptor] = useState<number[] | null>(null);
+  const [liveDescriptor, setLiveDescriptor] = useState<Float32Array | null>(null);
   const [settings, setSettings] = useState<AttendanceSettings | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -229,6 +230,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
             const result = isMatch(desc, storedDescriptor!, threshold);
             if (bestScore === null || result.distance < bestScore) {
               bestScore = result.distance;
+              setLiveDescriptor(desc);
             }
             if (result.match) break;
           }
@@ -289,6 +291,13 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
       if (res.ok && data.success) {
         setPhase('success');
         setResultMsg(data.message);
+
+        // Adaptive face update: blend stored descriptor with live one
+        if (liveDescriptor && storedDescriptor) {
+          const blended = blendDescriptors(storedDescriptor, liveDescriptor, 0.2);
+          const supabase = createClient();
+          supabase.from('teachers').update({ face_descriptor: blended }).eq('id', session.teacherUuid).then(() => {});
+        }
       } else {
         setPhase('error');
         setResultMsg(data.error || 'เกิดข้อผิดพลาด');

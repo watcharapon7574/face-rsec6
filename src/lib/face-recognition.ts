@@ -49,6 +49,15 @@ export function isMatch(
   return { match: distance < threshold, distance };
 }
 
+export function blendDescriptors(
+  stored: number[],
+  live: Float32Array | number[],
+  liveWeight: number = 0.2
+): number[] {
+  const oldWeight = 1 - liveWeight;
+  return stored.map((v, i) => v * oldWeight + (live[i] ?? v) * liveWeight);
+}
+
 export function averageDescriptors(descriptors: Float32Array[]): number[] {
   if (descriptors.length === 0) return [];
   const len = descriptors[0].length;
