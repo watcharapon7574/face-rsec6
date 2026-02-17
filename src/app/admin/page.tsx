@@ -294,11 +294,6 @@ export default function AdminPage() {
                 <input placeholder="PIN (เริ่มต้น 1234)" value={newTeacher.pin_code}
                   onChange={e => setNewTeacher({ ...newTeacher, pin_code: e.target.value.replace(/\D/g, '') })} maxLength={6} inputMode="numeric" className={inputClass} />
               </div>
-              <select value={newTeacher.location_id} onChange={e => setNewTeacher({ ...newTeacher, location_id: e.target.value })}
-                className={`w-full mb-3 ${inputClass}`}>
-                <option value="">-- ไม่ระบุหน่วยบริการ --</option>
-                {locations.map(l => <option key={l.id} value={l.id}>{l.short_name} - อ.{l.district}</option>)}
-              </select>
               <button onClick={addTeacher} className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition">เพิ่มครู</button>
             </div>
 
