@@ -57,6 +57,8 @@ export interface LivenessState {
   passed: boolean;
   headPositions: { x: number; y: number; time: number }[];
   headMoved: boolean;
+  earHistory: number[];
+  closedFrameCount: number;
 }
 
 export function createLivenessState(): LivenessState {
@@ -68,6 +70,8 @@ export function createLivenessState(): LivenessState {
     passed: false,
     headPositions: [],
     headMoved: false,
+    earHistory: [],
+    closedFrameCount: 0,
   };
 }
 
@@ -76,7 +80,7 @@ export function processLandmarks(
   state: LivenessState
 ): LivenessState {
   if (!landmarks || landmarks.length < 468) {
-    return { ...state, faceDetected: false };
+    return { ...state, faceDetected: false, closedFrameCount: 0 };
   }
 
   const newState = { ...state, faceDetected: true };
@@ -84,16 +88,31 @@ export function processLandmarks(
   // Calculate Eye Aspect Ratio
   const leftEAR = computeEAR(landmarks, LEFT_EYE_EAR);
   const rightEAR = computeEAR(landmarks, RIGHT_EYE_EAR);
-  const avgEAR = (leftEAR + rightEAR) / 2;
+  const rawEAR = (leftEAR + rightEAR) / 2;
+
+  // Smooth EAR over recent frames to reduce noise
+  const earHistory = [
+    ...state.earHistory.slice(-(LIVENESS.EAR_SMOOTHING_FRAMES - 1)),
+    rawEAR,
+  ];
+  newState.earHistory = earHistory;
+  const avgEAR =
+    earHistory.reduce((sum, v) => sum + v, 0) / earHistory.length;
 
   newState.lastEAR = avgEAR;
 
-  // Blink detection
+  // Blink detection with consecutive frame requirement
   if (avgEAR < LIVENESS.BLINK_THRESHOLD) {
-    newState.eyeWasClosed = true;
-  } else if (newState.eyeWasClosed && avgEAR >= LIVENESS.BLINK_THRESHOLD) {
-    newState.blinkCount = state.blinkCount + 1;
-    newState.eyeWasClosed = false;
+    newState.closedFrameCount = state.closedFrameCount + 1;
+    if (newState.closedFrameCount >= LIVENESS.CLOSED_FRAMES_REQUIRED) {
+      newState.eyeWasClosed = true;
+    }
+  } else {
+    newState.closedFrameCount = 0;
+    if (state.eyeWasClosed && avgEAR >= LIVENESS.BLINK_THRESHOLD) {
+      newState.blinkCount = state.blinkCount + 1;
+      newState.eyeWasClosed = false;
+    }
   }
 
   // Head movement detection (nose tip = landmark 1)

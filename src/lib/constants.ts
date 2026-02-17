@@ -3,10 +3,12 @@ export const ORG_NAME = 'ศูนย์การศึกษาพิเศษ 
 export const ORG_SHORT = 'ศกศ.6 ลพบุรี';
 
 export const LIVENESS = {
-  BLINK_THRESHOLD: 0.24,
+  BLINK_THRESHOLD: 0.2,
   REQUIRED_BLINKS: 2,
   DETECTION_TIMEOUT_MS: 15000,
   FACE_CONFIDENCE_THRESHOLD: 0.85,
+  EAR_SMOOTHING_FRAMES: 3,
+  CLOSED_FRAMES_REQUIRED: 2,
 };
 
 export const FACE_MATCH = {
