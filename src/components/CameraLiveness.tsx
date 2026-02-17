@@ -283,6 +283,68 @@ export default function CameraLiveness({
           </div>
         )}
 
+        {/* Debug overlay */}
+        {cameraReady && !error && (
+          <div className="absolute top-0 left-0 right-0 p-2 pointer-events-none">
+            <div className="bg-black/70 rounded-lg p-2 text-[10px] font-mono text-white space-y-0.5">
+              <div className="flex justify-between">
+                <span>EAR:</span>
+                <span className={livenessState.lastEAR < LIVENESS.BLINK_THRESHOLD ? 'text-red-400 font-bold' : 'text-green-400'}>
+                  {livenessState.lastEAR.toFixed(3)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Threshold:</span>
+                <span className="text-yellow-400">{LIVENESS.BLINK_THRESHOLD}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Eye closed:</span>
+                <span className={livenessState.eyeWasClosed ? 'text-red-400' : 'text-green-400'}>
+                  {livenessState.eyeWasClosed ? 'YES' : 'NO'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Closed frames:</span>
+                <span>{livenessState.closedFrameCount}/{LIVENESS.CLOSED_FRAMES_REQUIRED}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Blinks:</span>
+                <span className="text-cyan-400">{livenessState.blinkCount}/{LIVENESS.REQUIRED_BLINKS}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Head moved:</span>
+                <span className={livenessState.headMoved ? 'text-green-400' : 'text-gray-400'}>
+                  {livenessState.headMoved ? 'YES' : 'NO'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Face:</span>
+                <span className={livenessState.faceDetected ? 'text-green-400' : 'text-red-400'}>
+                  {livenessState.faceDetected ? 'DETECTED' : 'NONE'}
+                </span>
+              </div>
+              {/* EAR bar visualization */}
+              <div className="mt-1">
+                <div className="w-full h-2 bg-gray-700 rounded relative">
+                  <div
+                    className="absolute h-full bg-blue-500 rounded transition-all"
+                    style={{ width: `${Math.min(livenessState.lastEAR / 0.4 * 100, 100)}%` }}
+                  />
+                  <div
+                    className="absolute h-full w-px bg-yellow-400"
+                    style={{ left: `${LIVENESS.BLINK_THRESHOLD / 0.4 * 100}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[8px] text-gray-400 mt-0.5">
+                  <span>0</span>
+                  <span>T={LIVENESS.BLINK_THRESHOLD}</span>
+                  <span>0.4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Status bar at bottom */}
         {cameraReady && !error && (
           <div className="absolute bottom-0 left-0 right-0 p-4">
