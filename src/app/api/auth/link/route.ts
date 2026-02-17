@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
 
   const { data: teacher, error } = await supabase
     .from('teachers')
-    .select('id, teacher_id, full_name, position, location_id, enrollment_status, device_fingerprint')
+    .select('id, teacher_id, full_name, position, location_id, enrollment_status, device_fingerprint, is_admin')
     .eq('teacher_id', teacher_id)
     .eq('pin_code', pin_code)
     .eq('is_active', true)
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       enrollmentStatus: teacher.enrollment_status,
       locationId: teacher.location_id,
       deviceFingerprint: teacher.device_fingerprint,
+      isAdmin: teacher.is_admin,
     },
   });
 }

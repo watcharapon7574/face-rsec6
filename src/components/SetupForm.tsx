@@ -50,6 +50,7 @@ export default function SetupForm({ onComplete }: SetupFormProps) {
         fullName: data.teacher.fullName,
         enrollmentStatus: data.teacher.enrollmentStatus,
         locationId: data.teacher.locationId,
+        isAdmin: data.teacher.isAdmin || false,
       };
 
       localStorage.setItem(SESSION_KEY, JSON.stringify(session));

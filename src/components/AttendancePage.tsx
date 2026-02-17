@@ -16,11 +16,15 @@ import {
   CheckCircle2,
   XCircle,
   Settings as SettingsIcon,
+  Shield,
   RotateCcw,
   Loader2,
   MapPin,
   ScanFace,
+  X,
+  Save,
 } from 'lucide-react';
+import { SESSION_KEY } from '@/lib/constants';
 
 interface AttendancePageProps {
   session: UserSession;
@@ -50,6 +54,10 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
   const [storedDescriptor, setStoredDescriptor] = useState<number[] | null>(null);
   const [liveDescriptor, setLiveDescriptor] = useState<Float32Array | null>(null);
   const [settings, setSettings] = useState<AttendanceSettings | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({ full_name: '', position: '', pin_code: '' });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -308,6 +316,33 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     }
   };
 
+  const openProfile = async () => {
+    setProfileMsg('');
+    const supabase = createClient();
+    const { data } = await supabase.from('teachers').select('full_name, position, pin_code').eq('id', session.teacherUuid).single();
+    if (data) setProfileForm({ full_name: data.full_name, position: data.position || '', pin_code: data.pin_code });
+    setShowProfile(true);
+  };
+
+  const saveProfile = async () => {
+    if (!profileForm.full_name.trim()) { setProfileMsg('กรุณากรอกชื่อ'); return; }
+    if (!profileForm.pin_code || profileForm.pin_code.length < 4) { setProfileMsg('PIN อย่างน้อย 4 หลัก'); return; }
+    setProfileSaving(true);
+    const supabase = createClient();
+    const { error } = await supabase.from('teachers').update({
+      full_name: profileForm.full_name.trim(),
+      position: profileForm.position.trim(),
+      pin_code: profileForm.pin_code,
+    }).eq('id', session.teacherUuid);
+    setProfileSaving(false);
+    if (error) { setProfileMsg('บันทึกไม่สำเร็จ: ' + error.message); return; }
+    // Update local session
+    const updated = { ...session, fullName: profileForm.full_name.trim() };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+    setProfileMsg('บันทึกสำเร็จ');
+    setTimeout(() => setShowProfile(false), 800);
+  };
+
   const allChecksPassed =
     checkStatus.location === 'passed' &&
     checkStatus.time === 'passed' &&
@@ -326,9 +361,14 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         </div>
         <div className="flex items-center gap-2">
           <span className="text-blue-400 font-mono text-sm tabular-nums">{currentTime}</span>
-          <a href="/admin" className="p-2 text-slate-400 hover:text-white transition">
+          {session.isAdmin && (
+            <a href="/admin" className="p-2 text-amber-400 hover:text-amber-300 transition" title="จัดการระบบ">
+              <Shield className="w-5 h-5" />
+            </a>
+          )}
+          <button onClick={openProfile} className="p-2 text-slate-400 hover:text-white transition" title="ข้อมูลส่วนตัว">
             <SettingsIcon className="w-5 h-5" />
-          </a>
+          </button>
         </div>
       </header>
 
@@ -450,6 +490,42 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
           เปลี่ยนบัญชี
         </button>
       </footer>
+
+      {/* Profile modal */}
+      {showProfile && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowProfile(false)}>
+          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white font-bold text-base">ข้อมูลส่วนตัว</h2>
+              <button onClick={() => setShowProfile(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-slate-400 text-xs block mb-1">ชื่อ-นามสกุล</label>
+                <input value={profileForm.full_name} onChange={e => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="text-slate-400 text-xs block mb-1">ตำแหน่ง</label>
+                <input value={profileForm.position} onChange={e => setProfileForm({ ...profileForm, position: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500" />
+              </div>
+              <div>
+                <label className="text-slate-400 text-xs block mb-1">PIN</label>
+                <input value={profileForm.pin_code} onChange={e => setProfileForm({ ...profileForm, pin_code: e.target.value.replace(/\D/g, '') })}
+                  maxLength={6} inputMode="numeric"
+                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm tracking-widest focus:outline-none focus:border-blue-500" />
+              </div>
+              {profileMsg && <p className={`text-xs text-center ${profileMsg.includes('สำเร็จ') ? 'text-emerald-400' : 'text-red-400'}`}>{profileMsg}</p>}
+              <button onClick={saveProfile} disabled={profileSaving}
+                className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 transition">
+                {profileSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {profileSaving ? 'กำลังบันทึก...' : 'บันทึก'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

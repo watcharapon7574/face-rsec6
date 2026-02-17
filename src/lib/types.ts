@@ -93,4 +93,5 @@ export interface UserSession {
   fullName: string;
   enrollmentStatus: EnrollmentStatus;
   locationId: string | null;
+  isAdmin: boolean;
 }
