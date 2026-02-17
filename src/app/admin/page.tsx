@@ -42,6 +42,7 @@ export default function AdminPage() {
   // Locations
   const [locations, setLocations] = useState<Location[]>([]);
   const [editingLoc, setEditingLoc] = useState<Location | null>(null);
+  const [newLoc, setNewLoc] = useState({ name: '', short_name: '', district: '', lat: '', lng: '', radius_meters: '200' });
 
   // Settings
   const [settings, setSettings] = useState<AttendanceSettings | null>(null);
@@ -129,6 +130,27 @@ export default function AdminPage() {
     if (!confirm(`ลบครู "${name}" ?`)) return;
     await supabase.from('teachers').delete().eq('id', id);
     fetchTeachers();
+  };
+
+  const addLocation = async () => {
+    if (!newLoc.short_name || !newLoc.district || !newLoc.lat || !newLoc.lng) { alert('กรุณากรอกชื่อย่อ, อำเภอ, และพิกัด'); return; }
+    const { error } = await supabase.from('locations').insert({
+      name: newLoc.name || newLoc.short_name,
+      short_name: newLoc.short_name,
+      district: newLoc.district,
+      lat: parseFloat(newLoc.lat),
+      lng: parseFloat(newLoc.lng),
+      radius_meters: parseInt(newLoc.radius_meters) || 200,
+    });
+    if (error) { alert(error.message); return; }
+    setNewLoc({ name: '', short_name: '', district: '', lat: '', lng: '', radius_meters: '200' });
+    fetchLocations();
+  };
+
+  const deleteLocation = async (id: string, name: string) => {
+    if (!confirm(`ลบหน่วยบริการ "${name}" ?`)) return;
+    await supabase.from('locations').delete().eq('id', id);
+    fetchLocations();
   };
 
   const updateLocation = async (loc: Location) => {
@@ -307,7 +329,26 @@ export default function AdminPage() {
         {/* LOCATIONS */}
         {tab === 'locations' && !loading && (
           <div>
-            <p className="text-slate-400 text-xs mb-3">หน่วยบริการทั้งหมด {locations.length} แห่ง (แก้ไขพิกัดและรัศมีได้)</p>
+            <div className="bg-slate-800/60 rounded-xl p-4 mb-4">
+              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Plus className="w-4 h-4" /> เพิ่มหน่วยบริการ</h3>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <input placeholder="ชื่อย่อ *" value={newLoc.short_name}
+                  onChange={e => setNewLoc({ ...newLoc, short_name: e.target.value })} className={inputClass} />
+                <input placeholder="อำเภอ *" value={newLoc.district}
+                  onChange={e => setNewLoc({ ...newLoc, district: e.target.value })} className={inputClass} />
+                <input placeholder="Lat *" type="number" step="any" value={newLoc.lat}
+                  onChange={e => setNewLoc({ ...newLoc, lat: e.target.value })} className={inputClass} />
+                <input placeholder="Lng *" type="number" step="any" value={newLoc.lng}
+                  onChange={e => setNewLoc({ ...newLoc, lng: e.target.value })} className={inputClass} />
+                <input placeholder="รัศมี (m)" type="number" value={newLoc.radius_meters}
+                  onChange={e => setNewLoc({ ...newLoc, radius_meters: e.target.value })} className={inputClass} />
+                <input placeholder="ชื่อเต็ม (ไม่บังคับ)" value={newLoc.name}
+                  onChange={e => setNewLoc({ ...newLoc, name: e.target.value })} className={inputClass} />
+              </div>
+              <button onClick={addLocation} className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition">เพิ่มหน่วยบริการ</button>
+            </div>
+
+            <p className="text-slate-400 text-xs mb-3">หน่วยบริการทั้งหมด {locations.length} แห่ง (แตะเพื่อแก้ไข)</p>
             <div className="space-y-2">
               {locations.map(loc => (
                 <div key={loc.id} className="bg-slate-800/60 rounded-xl p-3">
@@ -328,8 +369,8 @@ export default function AdminPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between" onClick={() => setEditingLoc({ ...loc })}>
-                      <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 cursor-pointer" onClick={() => setEditingLoc({ ...loc })}>
                         <div className="flex items-center gap-2">
                           <span className="text-white text-sm font-medium">{loc.short_name}</span>
                           {loc.is_headquarters && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">สำนักงานใหญ่</span>}
@@ -337,7 +378,12 @@ export default function AdminPage() {
                         <p className="text-slate-500 text-xs">อ.{loc.district} · รัศมี {loc.radius_meters}m</p>
                         <p className="text-slate-600 text-[10px]">{loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</p>
                       </div>
-                      <MapPin className="w-4 h-4 text-slate-600" />
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-4 h-4 text-slate-600" />
+                        {!loc.is_headquarters && (
+                          <button onClick={() => deleteLocation(loc.id, loc.short_name)} className="p-2 text-slate-500 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
