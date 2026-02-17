@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "face-attendance": {
+      "command": "node",
+      "args": ["./mcp-server/dist/index.js"],
+      "env": {
+        "NEXT_PUBLIC_SUPABASE_URL": "https://itbtyprcvvvzirtldquy.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YnR5cHJjdnZ2emlydGxkcXV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMTA4NDUsImV4cCI6MjA4Njg4Njg0NX0.susWgomJhCqg5JKkEBWf7fdMNHQD7R_zWAKEW8KKjag"
+      }
+    }
+  }
+}

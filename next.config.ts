@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
+  turbopack: {},
+  serverExternalPackages: ['@tensorflow/tfjs', '@tensorflow-models/face-landmarks-detection', '@tensorflow-models/face-detection'],
 };
 
 export default nextConfig;

@@ -1,0 +1,24 @@
+{
+  "name": "face-attendance-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for managing Face Attendance Supabase database",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "face-attendance-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3"
+  }
+}
