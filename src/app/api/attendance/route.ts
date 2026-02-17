@@ -106,6 +106,10 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'ลงเวลาเข้างานวันนี้แล้ว' }, { status: 400 });
       }
 
+      // Determine late status
+      const lateAfterMin = toMin(settings.late_after || '08:30');
+      const checkInStatus = currentMinutes > lateAfterMin ? 'late' : 'present';
+
       const { data: record, error: insertErr } = await supabase
         .from('attendance_records')
         .upsert({
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
           device_fingerprint,
           check_in_liveness: true,
           check_in_face_match: face_match_score,
-          status: 'present',
+          status: checkInStatus,
         }, { onConflict: 'teacher_id,date' })
         .select()
         .single();
@@ -127,7 +131,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการบันทึก' }, { status: 500 });
       }
 
-      return NextResponse.json({ success: true, message: `เข้างานสำเร็จ - ${teacher.full_name}`, record });
+      const lateMsg = checkInStatus === 'late' ? ' (เข้าสาย)' : '';
+      return NextResponse.json({ success: true, message: `เข้างานสำเร็จ${lateMsg} - ${teacher.full_name}`, record });
     }
 
     // check_out

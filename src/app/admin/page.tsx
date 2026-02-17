@@ -244,9 +244,11 @@ export default function AdminPage() {
                       <span><span className="text-slate-500">เข้า: </span><span className="text-emerald-400">{formatDateTime(r.check_in_time)}</span></span>
                       <span><span className="text-slate-500">ออก: </span><span className="text-orange-400">{formatDateTime(r.check_out_time)}</span></span>
                     </div>
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-1 flex-wrap">
                       {r.locations && <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded">{(r.locations as unknown as Location).short_name}</span>}
                       {r.check_in_liveness && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">Face✓</span>}
+                      {r.status === 'late' && <span className="text-[10px] px-1.5 py-0.5 bg-orange-500/20 text-orange-400 rounded">เข้าสาย</span>}
+                      {r.auto_checkout && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ออกอัตโนมัติ</span>}
                     </div>
                   </div>
                 ))}
@@ -358,6 +360,12 @@ export default function AdminPage() {
                     <div><span className="text-slate-500 text-[10px]">สิ้นสุด</span>
                       <input type="time" value={settingsForm.check_in_end || ''} onChange={e => setSettingsForm({ ...settingsForm, check_in_end: e.target.value })} className={`w-full ${inputClass}`} /></div>
                   </div>
+                </div>
+                <div>
+                  <label className="text-slate-400 text-xs block mb-1">เข้าสายหลังเวลา</label>
+                  <input type="time" value={settingsForm.late_after || '08:30'} onChange={e => setSettingsForm({ ...settingsForm, late_after: e.target.value })}
+                    className={`w-full ${inputClass}`} />
+                  <p className="text-slate-500 text-[10px] mt-1">ลงเวลาเข้าหลังเวลานี้จะถูกบันทึกเป็น &quot;เข้าสาย&quot;</p>
                 </div>
                 <div>
                   <label className="text-slate-400 text-xs block mb-1">เวลาออกงาน</label>

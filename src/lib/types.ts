@@ -6,6 +6,7 @@ export interface AttendanceSettings {
   check_out_start: string;
   check_out_end: string;
   face_match_threshold: number;
+  late_after: string;
 }
 
 export interface Location {
@@ -60,6 +61,7 @@ export interface AttendanceRecord {
   check_in_face_match: number | null;
   check_out_face_match: number | null;
   status: string;
+  auto_checkout: boolean;
   created_at: string;
   teachers?: Teacher;
   locations?: Location;

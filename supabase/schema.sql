@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS attendance_settings (
   check_out_start TIME NOT NULL DEFAULT '16:00',
   check_out_end TIME NOT NULL DEFAULT '22:00',
   face_match_threshold REAL NOT NULL DEFAULT 0.5,
+  late_after TIME NOT NULL DEFAULT '08:30',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -91,6 +92,7 @@ CREATE TABLE IF NOT EXISTS attendance_records (
   check_in_face_match REAL,
   check_out_face_match REAL,
   status TEXT DEFAULT 'present',
+  auto_checkout BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(teacher_id, date),
   UNIQUE(device_fingerprint, date)
