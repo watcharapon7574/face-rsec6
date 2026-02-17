@@ -33,7 +33,6 @@ export default function CameraLiveness({
   const [error, setError] = useState<string | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
   const [debugInfo, setDebugInfo] = useState({
-    tfReady: false,
     modelLoaded: false,
     loopRunning: false,
     facesFound: 0,
@@ -86,24 +85,30 @@ export default function CameraLiveness({
 
   const loadModel = useCallback(async () => {
     try {
-      const tf = await import('@tensorflow/tfjs');
-      await tf.ready();
-      setDebugInfo((p) => ({ ...p, tfReady: true }));
-
-      const faceLandmarksDetection = await import(
-        '@tensorflow-models/face-landmarks-detection'
+      const { FaceLandmarker, FilesetResolver } = await import(
+        '@mediapipe/tasks-vision'
       );
 
-      const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
-      const detector = await faceLandmarksDetection.createDetector(model, {
-        runtime: 'tfjs' as const,
-        refineLandmarks: true,
-        maxFaces: 1,
-      });
+      const filesetResolver = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      );
 
-      detectorRef.current = detector;
+      const faceLandmarker = await FaceLandmarker.createFromOptions(
+        filesetResolver,
+        {
+          baseOptions: {
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+            delegate: 'GPU',
+          },
+          runningMode: 'VIDEO',
+          numFaces: 1,
+        }
+      );
+
+      detectorRef.current = faceLandmarker;
       setDebugInfo((p) => ({ ...p, modelLoaded: true }));
-      return detector;
+      return faceLandmarker;
     } catch (err) {
       console.error('Model load error:', err);
       setDebugInfo((p) => ({ ...p, lastError: `model: ${err}` }));
@@ -114,10 +119,12 @@ export default function CameraLiveness({
 
   const detectLoop = useCallback(async () => {
     const detector = detectorRef.current as {
-      estimateFaces: (
+      detectForVideo: (
         video: HTMLVideoElement,
-        config?: { flipHorizontal: boolean }
-      ) => Promise<{ keypoints: { x: number; y: number; z?: number }[] }[]>;
+        timestamp: number
+      ) => {
+        faceLandmarks: { x: number; y: number; z: number }[][];
+      };
     } | null;
 
     if (
@@ -149,21 +156,34 @@ export default function CameraLiveness({
     }
 
     try {
-      const faces = await detector.estimateFaces(videoRef.current, {
-        flipHorizontal: false,
-      });
+      const results = detector.detectForVideo(
+        videoRef.current,
+        performance.now()
+      );
+
+      const faceLandmarks = results.faceLandmarks;
+      const numFaces = faceLandmarks?.length ?? 0;
+      const numKeypoints = faceLandmarks?.[0]?.length ?? 0;
 
       setDebugInfo((p) => ({
         ...p,
         loopRunning: true,
         videoReady: videoRef.current?.readyState ?? -1,
-        facesFound: faces.length,
-        keypointsCount: faces[0]?.keypoints?.length ?? 0,
+        facesFound: numFaces,
+        keypointsCount: numKeypoints,
         frameCount: p.frameCount + 1,
       }));
 
-      if (faces.length > 0) {
-        const landmarks = faces[0].keypoints;
+      if (numFaces > 0 && numKeypoints > 0) {
+        // Convert normalized coords (0-1) to pixel coords
+        const w = videoRef.current.videoWidth;
+        const h = videoRef.current.videoHeight;
+        const landmarks = faceLandmarks[0].map((lm) => ({
+          x: lm.x * w,
+          y: lm.y * h,
+          z: lm.z,
+        }));
+
         setLivenessState((prev) => {
           const next = processLandmarks(landmarks, prev);
           if (next.passed && !prev.passed) {
@@ -176,16 +196,10 @@ export default function CameraLiveness({
         if (canvasRef.current && videoRef.current) {
           const ctx = canvasRef.current.getContext('2d');
           if (ctx) {
-            canvasRef.current.width = videoRef.current.videoWidth;
-            canvasRef.current.height = videoRef.current.videoHeight;
-            ctx.clearRect(
-              0,
-              0,
-              canvasRef.current.width,
-              canvasRef.current.height
-            );
+            canvasRef.current.width = w;
+            canvasRef.current.height = h;
+            ctx.clearRect(0, 0, w, h);
 
-            // Draw face oval guide
             const noseTip = landmarks[1];
             if (noseTip) {
               ctx.beginPath();
@@ -317,9 +331,7 @@ export default function CameraLiveness({
             <div className="bg-black/70 rounded-lg p-2 text-[10px] font-mono text-white space-y-0.5">
               {/* Pipeline status */}
               <div className="text-[9px] text-gray-400 border-b border-gray-600 pb-1 mb-1">
-                <span className={debugInfo.tfReady ? 'text-green-400' : 'text-red-400'}>TF:{debugInfo.tfReady ? 'OK' : 'NO'}</span>
-                {' | '}
-                <span className={debugInfo.modelLoaded ? 'text-green-400' : 'text-red-400'}>Model:{debugInfo.modelLoaded ? 'OK' : 'NO'}</span>
+                <span className={debugInfo.modelLoaded ? 'text-green-400' : 'text-red-400'}>MP:{debugInfo.modelLoaded ? 'OK' : 'NO'}</span>
                 {' | '}
                 <span className={debugInfo.loopRunning ? 'text-green-400' : 'text-red-400'}>Loop:{debugInfo.loopRunning ? 'OK' : 'NO'}</span>
                 {' | '}
