@@ -67,7 +67,12 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
     setPhase('capturing');
     setMessage('กำลังวิเคราะห์ใบหน้า...');
 
-    const descriptor = await extractDescriptor(videoRef.current);
+    // Run extraction with minimum display time so user sees the overlay
+    const [descriptor] = await Promise.all([
+      extractDescriptor(videoRef.current),
+      new Promise(r => setTimeout(r, 1000)),
+    ]);
+
     if (!descriptor) {
       setPhase('ready');
       setMessage('ตรวจไม่พบใบหน้า กรุณาหันหน้าตรงแล้วลองอีกครั้ง');
@@ -188,14 +193,18 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
           </div>
         </div>
 
-        {/* Capture button */}
-        {phase === 'ready' && (
+        {/* Capture button - visible in both ready and capturing states */}
+        {(phase === 'ready' || phase === 'capturing') && (
           <button
             onClick={captureSample}
-            className="w-full max-w-sm py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition active:scale-[0.97] shadow-lg shadow-blue-500/30"
+            disabled={phase === 'capturing'}
+            className="w-full max-w-sm py-4 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition active:scale-[0.97] shadow-lg shadow-blue-500/30"
           >
-            <ScanFace className="w-6 h-6" />
-            ถ่ายภาพ ({samples.length + 1}/{FACE_MATCH.ENROLLMENT_SAMPLES})
+            {phase === 'capturing' ? (
+              <><Loader2 className="w-6 h-6 animate-spin" />กำลังวิเคราะห์...</>
+            ) : (
+              <><ScanFace className="w-6 h-6" />ถ่ายภาพ ({samples.length + 1}/{FACE_MATCH.ENROLLMENT_SAMPLES})</>
+            )}
           </button>
         )}
 
