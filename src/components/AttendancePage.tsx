@@ -11,12 +11,9 @@ import { loadFaceApi, extractDescriptor, isMatch, blendDescriptors } from '@/lib
 import { ORG_SHORT } from '@/lib/constants';
 import type { AttendanceSettings, Location, AttendanceAction, UserSession } from '@/lib/types';
 import {
-  LogIn,
-  LogOut,
   CheckCircle2,
   XCircle,
   Settings as SettingsIcon,
-  Shield,
   RotateCcw,
   Loader2,
   MapPin,
@@ -58,6 +55,11 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
   const [profileForm, setProfileForm] = useState({ full_name: '', position: '', pin_code: '' });
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
+  const [isFaceMismatch, setIsFaceMismatch] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [pinLoading, setPinLoading] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -86,6 +88,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     setAction(null);
     setMatchedLocation(null);
     setFaceMatchScore(null);
+    setIsFaceMismatch(false);
     setCheckStatus({
       location: 'checking', locationMsg: 'กำลังตรวจสอบตำแหน่ง...',
       time: 'checking', timeMsg: 'กำลังตรวจสอบเวลา...',
@@ -276,6 +279,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
           setPhase('scanning');
         } else {
           setFaceMatchScore(bestScore);
+          setIsFaceMismatch(true);
           setPhase('error');
           setResultMsg(`ใบหน้าไม่ตรงกับที่ลงทะเบียน${bestScore !== null ? ` (ค่าความต่าง: ${bestScore.toFixed(3)})` : ''}`);
         }
@@ -366,6 +370,42 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     setTimeout(() => setShowProfile(false), 800);
   };
 
+  const handleFaceUpdate = async () => {
+    if (!pinInput || pinInput.length < 4) {
+      setPinError('กรุณากรอก PIN อย่างน้อย 4 หลัก');
+      return;
+    }
+    setPinLoading(true);
+    setPinError('');
+
+    try {
+      const res = await fetch('/api/face-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teacher_uuid: session.teacherUuid,
+          pin_code: pinInput,
+          lat: coords?.lat,
+          lng: coords?.lng,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // Reset session enrollment status → page.tsx will show FaceEnrollment
+        const updated = { ...session, enrollmentStatus: 'none' as const };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
+        window.location.reload();
+      } else {
+        setPinError(data.error || 'เกิดข้อผิดพลาด');
+      }
+    } catch {
+      setPinError('ไม่สามารถเชื่อมต่อระบบได้');
+    } finally {
+      setPinLoading(false);
+    }
+  };
+
   const allChecksPassed =
     checkStatus.location === 'passed' &&
     checkStatus.time === 'passed' &&
@@ -385,14 +425,15 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         </div>
         <div className="flex items-center gap-2">
           <span className="text-blue-400 font-mono text-sm tabular-nums">{currentTime}</span>
-          {session.isAdmin && (
+          {session.isAdmin ? (
             <a href="/admin" className="p-2 text-amber-400 hover:text-amber-300 transition" title="จัดการระบบ">
-              <Shield className="w-5 h-5" />
+              <SettingsIcon className="w-5 h-5" />
             </a>
+          ) : (
+            <button onClick={openProfile} className="p-2 text-slate-400 hover:text-white transition" title="ข้อมูลส่วนตัว">
+              <SettingsIcon className="w-5 h-5" />
+            </button>
           )}
-          <button onClick={openProfile} className="p-2 text-slate-400 hover:text-white transition" title="ข้อมูลส่วนตัว">
-            <SettingsIcon className="w-5 h-5" />
-          </button>
         </div>
       </header>
 
@@ -510,9 +551,19 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
             </div>
             <p className="text-red-400 text-xl font-bold mb-2">ไม่สำเร็จ</p>
             <p className="text-white text-sm">{resultMsg}</p>
-            <button onClick={runChecks} className="mt-4 px-6 py-2.5 bg-slate-700 text-white rounded-xl text-sm flex items-center gap-2 mx-auto hover:bg-slate-600 transition">
-              <RotateCcw className="w-4 h-4" />ลองใหม่
-            </button>
+            <div className="flex flex-col items-center gap-3 mt-4">
+              <button onClick={runChecks} className="px-6 py-2.5 bg-slate-700 text-white rounded-xl text-sm flex items-center gap-2 hover:bg-slate-600 transition">
+                <RotateCcw className="w-4 h-4" />ลองใหม่
+              </button>
+              {isFaceMismatch && (
+                <button
+                  onClick={() => { setShowPinModal(true); setPinInput(''); setPinError(''); }}
+                  className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm flex items-center gap-2 transition"
+                >
+                  <ScanFace className="w-4 h-4" />อัพเดทใบหน้า
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -561,6 +612,51 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
                 className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 transition">
                 {profileSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 {profileSaving ? 'กำลังบันทึก...' : 'บันทึก'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Face update PIN modal */}
+      {showPinModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPinModal(false)}>
+          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white font-bold text-base">อัพเดทใบหน้า</h2>
+              <button onClick={() => setShowPinModal(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+            </div>
+
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4">
+              <p className="text-amber-300 text-xs leading-relaxed">
+                กรุณายืนยัน PIN เพื่ออัพเดทใบหน้า ระบบจะรีเซ็ตใบหน้าเดิมและให้ลงทะเบียนใหม่
+              </p>
+              <p className="text-slate-400 text-[10px] mt-1">
+                * ต้องอยู่ในพื้นที่หน่วยบริการ | อัพเดทได้ 1 ครั้ง/24 ชม.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-slate-400 text-xs block mb-1">PIN</label>
+                <input
+                  value={pinInput}
+                  onChange={e => setPinInput(e.target.value.replace(/\D/g, ''))}
+                  maxLength={6}
+                  inputMode="numeric"
+                  autoFocus
+                  placeholder="กรอก PIN 4-6 หลัก"
+                  className="w-full px-3 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm tracking-widest text-center focus:outline-none focus:border-amber-500"
+                />
+              </div>
+              {pinError && <p className="text-red-400 text-xs text-center">{pinError}</p>}
+              <button
+                onClick={handleFaceUpdate}
+                disabled={pinLoading || pinInput.length < 4}
+                className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 disabled:bg-amber-600/50 text-white font-medium rounded-lg text-sm flex items-center justify-center gap-2 transition"
+              >
+                {pinLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ScanFace className="w-4 h-4" />}
+                {pinLoading ? 'กำลังตรวจสอบ...' : 'ยืนยันและอัพเดทใบหน้า'}
               </button>
             </div>
           </div>
