@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
       device_fingerprint,
       liveness_passed,
       face_match_score,
+      late_reason,
     } = body;
 
     if (!teacher_uuid || !action || !device_fingerprint) {
@@ -64,9 +65,10 @@ export async function POST(request: NextRequest) {
     const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
 
     if (action === 'check_in') {
-      const s = toMin(settings.check_in_start), e = toMin(settings.check_in_end);
-      if (currentMinutes < s || currentMinutes > e) {
-        return NextResponse.json({ error: `ไม่อยู่ในเวลาเข้างาน (${settings.check_in_start}-${settings.check_in_end})` }, { status: 400 });
+      const s = toMin(settings.check_in_start);
+      const coStart = toMin(settings.check_out_start);
+      if (currentMinutes < s || currentMinutes >= coStart) {
+        return NextResponse.json({ error: `ไม่อยู่ในเวลาเข้างาน (${settings.check_in_start}-${settings.check_out_start})` }, { status: 400 });
       }
     } else if (action === 'check_out') {
       const s = toMin(settings.check_out_start), e = toMin(settings.check_out_end);
@@ -108,7 +110,35 @@ export async function POST(request: NextRequest) {
 
       // Determine late status
       const lateAfterMin = toMin(settings.late_after || '08:30');
-      const checkInStatus = currentMinutes > lateAfterMin ? 'late' : 'present';
+      const graceMin = lateAfterMin + 30; // หน่วยบริการ grace period 30 นาที
+
+      // Check if location is หน่วยบริการ (not headquarters)
+      let isServiceUnit = false;
+      if (locationForRecord) {
+        const { data: loc } = await supabase
+          .from('locations')
+          .select('is_headquarters')
+          .eq('id', locationForRecord)
+          .single();
+        isServiceUnit = loc ? !loc.is_headquarters : false;
+      }
+
+      // หน่วยบริการ: เข้าหลัง late_after ไม่เกิน 30 นาที → บันทึกเป็นเวลา late_after (ไม่สาย)
+      let checkInStatus: string;
+      let recordTime: string;
+      if (isServiceUnit && currentMinutes > lateAfterMin && currentMinutes <= graceMin) {
+        checkInStatus = 'present';
+        // สร้างเวลา late_after ของวันนี้ (เช่น 08:30 ไทย = 01:30 UTC)
+        const lateHour = Math.floor(lateAfterMin / 60);
+        const lateMinute = lateAfterMin % 60;
+        recordTime = new Date(Date.UTC(
+          thaiNow.getFullYear(), thaiNow.getMonth(), thaiNow.getDate(),
+          lateHour - 7, lateMinute, 0, 0
+        )).toISOString();
+      } else {
+        checkInStatus = currentMinutes > lateAfterMin ? 'late' : 'present';
+        recordTime = now.toISOString();
+      }
 
       const { data: record, error: insertErr } = await supabase
         .from('attendance_records')
@@ -116,13 +146,14 @@ export async function POST(request: NextRequest) {
           teacher_id: teacher.id,
           location_id: locationForRecord,
           date: today,
-          check_in_time: now.toISOString(),
+          check_in_time: recordTime,
           check_in_lat: lat,
           check_in_lng: lng,
           device_fingerprint,
           check_in_liveness: true,
           check_in_face_match: face_match_score,
           status: checkInStatus,
+          late_reason: checkInStatus === 'late' ? (late_reason || null) : null,
         }, { onConflict: 'teacher_id,date' })
         .select()
         .single();

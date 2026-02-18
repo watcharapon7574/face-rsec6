@@ -288,6 +288,9 @@ export default function AdminPage() {
                       {r.status === 'late' && <span className="text-[10px] px-1.5 py-0.5 bg-orange-500/20 text-orange-400 rounded">เข้าสาย</span>}
                       {r.auto_checkout && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ออกอัตโนมัติ</span>}
                     </div>
+                    {r.late_reason && (
+                      <p className="text-[11px] text-orange-300/80 mt-1">เหตุผล: {r.late_reason}</p>
+                    )}
                   </div>
                 ))}
               </div>

@@ -61,6 +61,7 @@ export interface AttendanceRecord {
   check_in_face_match: number | null;
   check_out_face_match: number | null;
   status: string;
+  late_reason: string | null;
   auto_checkout: boolean;
   created_at: string;
   teachers?: Teacher;
@@ -78,6 +79,7 @@ export interface AttendanceRequest {
   device_fingerprint: string;
   liveness_passed: boolean;
   face_match_score: number;
+  late_reason?: string;
 }
 
 export interface TimeStatus {

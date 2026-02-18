@@ -23,22 +23,24 @@ export function getTimeStatus(settings: AttendanceSettings): TimeStatus {
   const currentTime = formatTime(new Date());
 
   const ciStart = timeToMinutes(settings.check_in_start);
-  const ciEnd = timeToMinutes(settings.check_in_end);
   const coStart = timeToMinutes(settings.check_out_start);
   const coEnd = timeToMinutes(settings.check_out_end);
 
-  const canCheckIn = now >= ciStart && now <= ciEnd;
+  const canCheckIn = now >= ciStart && now < coStart;
   const canCheckOut = now >= coStart && now <= coEnd;
 
   let message = '';
   if (canCheckIn) {
-    message = `เวลาเข้างาน (${settings.check_in_start} - ${settings.check_in_end})`;
+    const lateAfter = timeToMinutes(settings.late_after || '08:30');
+    if (now > lateAfter) {
+      message = `เข้างานสาย (ก่อน ${settings.check_out_start})`;
+    } else {
+      message = `เวลาเข้างาน (${settings.check_in_start} - ${settings.check_out_start})`;
+    }
   } else if (canCheckOut) {
     message = `เวลาออกงาน (${settings.check_out_start} - ${settings.check_out_end})`;
   } else if (now < ciStart) {
     message = `ยังไม่ถึงเวลาเข้างาน (เริ่ม ${settings.check_in_start})`;
-  } else if (now > ciEnd && now < coStart) {
-    message = `รอเวลาออกงาน (เริ่ม ${settings.check_out_start})`;
   } else {
     message = 'หมดเวลาลงเวลาวันนี้';
   }

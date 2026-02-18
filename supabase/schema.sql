@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS attendance_records (
   check_in_face_match REAL,
   check_out_face_match REAL,
   status TEXT DEFAULT 'present',
+  late_reason TEXT,
   auto_checkout BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(teacher_id, date),

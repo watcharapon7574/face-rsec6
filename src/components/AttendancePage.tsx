@@ -60,6 +60,8 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
   const [pinLoading, setPinLoading] = useState(false);
+  const [showLateReason, setShowLateReason] = useState(false);
+  const [lateReason, setLateReason] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -89,6 +91,8 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     setMatchedLocation(null);
     setFaceMatchScore(null);
     setIsFaceMismatch(false);
+    setLateReason('');
+    setShowLateReason(false);
     setCheckStatus({
       location: 'checking', locationMsg: 'กำลังตรวจสอบตำแหน่ง...',
       time: 'checking', timeMsg: 'กำลังตรวจสอบเวลา...',
@@ -298,10 +302,20 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
   const handleLivenessComplete = useCallback((passed: boolean) => {
     if (passed && faceMatchScore !== null) {
+      // ถ้าเป็น check_in + เลยเวลา late_after → ให้กรอกเหตุผลก่อน
+      if (action === 'check_in' && settings?.late_after) {
+        const now = new Date();
+        const nowMin = now.getHours() * 60 + now.getMinutes();
+        const [lh, lm] = settings.late_after.split(':').map(Number);
+        if (nowMin > lh * 60 + lm) {
+          setShowLateReason(true);
+          return;
+        }
+      }
       handleSubmit();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [faceMatchScore]);
+  }, [faceMatchScore, action, settings]);
 
   const handleSubmit = async () => {
     if (!action || !coords || !deviceFp || faceMatchScore === null) return;
@@ -320,6 +334,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
           device_fingerprint: deviceFp,
           liveness_passed: true,
           face_match_score: faceMatchScore,
+          late_reason: lateReason || undefined,
         }),
       });
       const data = await res.json();
@@ -614,6 +629,31 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
                 {profileSaving ? 'กำลังบันทึก...' : 'บันทึก'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Late reason modal */}
+      {showLateReason && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
+            <h2 className="text-white font-bold text-base mb-1">เข้างานสาย</h2>
+            <p className="text-slate-400 text-xs mb-3">กรุณาระบุเหตุผลที่เข้างานสาย</p>
+            <textarea
+              value={lateReason}
+              onChange={e => setLateReason(e.target.value)}
+              placeholder="เหตุผล..."
+              rows={3}
+              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-orange-500 resize-none"
+              autoFocus
+            />
+            <button
+              onClick={() => { setShowLateReason(false); handleSubmit(); }}
+              disabled={!lateReason.trim()}
+              className="w-full mt-3 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-600 disabled:text-slate-400 text-white font-medium rounded-lg text-sm transition"
+            >
+              ยืนยันลงเวลา
+            </button>
           </div>
         </div>
       )}
