@@ -419,7 +419,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       <header className="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
         <div>
-          {session.isAdmin && <p className="text-slate-600 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>}
+          <p className="text-slate-600 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
           <h1 className="text-white font-bold text-base leading-tight">{ORG_SHORT}</h1>
           <p className="text-slate-400 text-xs">{session.fullName}</p>
         </div>
