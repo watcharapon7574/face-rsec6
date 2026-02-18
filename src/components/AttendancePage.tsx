@@ -464,14 +464,16 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         {/* Liveness phase - after face verified */}
         {phase === 'scanning' && allChecksPassed && !alreadyDone && (
           <>
-            <div className="w-full max-w-sm text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span className="text-emerald-400 text-sm">ยืนยันใบหน้าสำเร็จ</span>
+            <div className="w-full max-w-sm">
+              <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 mb-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <div>
+                  <p className="text-emerald-400 text-sm font-medium">ยืนยันใบหน้าสำเร็จ</p>
+                  <p className="text-slate-400 text-xs">ขั้นตอนที่ 2: กะพริบตาและขยับหน้าเล็กน้อย</p>
+                </div>
               </div>
-              <p className="text-slate-400 text-xs">กรุณากะพริบตาและขยับหน้าเพื่อยืนยัน</p>
             </div>
-            <CameraLiveness onLivenessComplete={handleLivenessComplete} enabled={true} />
+            <CameraLiveness onLivenessComplete={handleLivenessComplete} enabled={true} showDebug={session.isAdmin} />
           </>
         )}
 

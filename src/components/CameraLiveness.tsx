@@ -13,11 +13,13 @@ import { Camera, Eye, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 interface CameraLivenessProps {
   onLivenessComplete: (passed: boolean) => void;
   enabled: boolean;
+  showDebug?: boolean;
 }
 
 export default function CameraLiveness({
   onLivenessComplete,
   enabled,
+  showDebug = false,
 }: CameraLivenessProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -304,7 +306,8 @@ export default function CameraLiveness({
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900/90">
             <Loader2 className="w-12 h-12 text-blue-400 animate-spin mb-4" />
-            <p className="text-white text-sm">กำลังเปิดกล้อง...</p>
+            <p className="text-white text-sm font-medium">กำลังเตรียมระบบ Liveness</p>
+            <p className="text-slate-400 text-xs mt-1">เปิดกล้อง + โหลดโมเดลตรวจจับ</p>
           </div>
         )}
 
@@ -325,8 +328,8 @@ export default function CameraLiveness({
           </div>
         )}
 
-        {/* Debug overlay */}
-        {cameraReady && !error && (
+        {/* Debug overlay - admin only */}
+        {showDebug && cameraReady && !error && (
           <div className="absolute top-0 left-0 right-0 p-2 pointer-events-none">
             <div className="bg-black/70 rounded-lg p-2 text-[10px] font-mono text-white space-y-0.5">
               {/* Pipeline status */}
