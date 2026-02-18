@@ -223,7 +223,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
       setCheckStatus(p => ({ ...p, device: 'failed', deviceMsg: 'ไม่สามารถระบุอุปกรณ์ได้' }));
     }
 
-    if ((timeStatus.canCheckIn || timeStatus.canCheckOut) && locationOk) {
+    if (resolvedAction && locationOk) {
       setPhase('ready_to_verify');
     }
   }, [session]);
