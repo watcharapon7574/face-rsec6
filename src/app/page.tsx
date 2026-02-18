@@ -70,13 +70,9 @@ export default function Home() {
         .then(data => {
           if (data.version && data.version !== appVersion) {
             localStorage.setItem('app_version', data.version);
-            if ('caches' in window) {
-              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
-                window.location.reload();
-              });
-            } else {
+            caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).finally(() => {
               window.location.reload();
-            }
+            });
           }
         })
         .catch(() => {});
