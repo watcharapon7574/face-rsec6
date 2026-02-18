@@ -24,9 +24,45 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const appVersion = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
+
+    // Version-based auto update: if version changed, clear caches and reload
+    const storedVersion = localStorage.getItem('app_version');
+    if (storedVersion && storedVersion !== appVersion) {
+      localStorage.setItem('app_version', appVersion);
+      if ('caches' in window) {
+        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+          window.location.reload();
+        });
+        return;
+      }
+    }
+    localStorage.setItem('app_version', appVersion);
+
+    // Register SW + listen for updates
     if ('serviceWorker' in navigator) {
-      const v = process.env.NEXT_PUBLIC_APP_VERSION || 'dev';
-      navigator.serviceWorker.register(`/sw.js?v=${v}`).catch(() => {});
+      navigator.serviceWorker.register(`/sw.js?v=${appVersion}`).then(reg => {
+        // Check for updates immediately
+        reg.update().catch(() => {});
+        // When a new SW is found and activates, reload
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker?.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          });
+        });
+      }).catch(() => {});
+
+      // When SW controller changes (new SW takes over), reload
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
     }
   }, []);
 
