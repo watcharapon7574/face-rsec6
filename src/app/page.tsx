@@ -42,9 +42,7 @@ export default function Home() {
     // Register SW + listen for updates
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register(`/sw.js?v=${appVersion}`).then(reg => {
-        // Check for updates immediately
         reg.update().catch(() => {});
-        // When a new SW is found and activates, reload
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           newWorker?.addEventListener('statechange', () => {
@@ -55,7 +53,6 @@ export default function Home() {
         });
       }).catch(() => {});
 
-      // When SW controller changes (new SW takes over), reload
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) {
@@ -64,6 +61,28 @@ export default function Home() {
         }
       });
     }
+
+    // When app resumes from background (iOS PWA), check server for new version
+    const onVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return;
+      fetch('/api/version', { cache: 'no-store' })
+        .then(r => r.json() as Promise<{ version: string }>)
+        .then(data => {
+          if (data.version && data.version !== appVersion) {
+            localStorage.setItem('app_version', data.version);
+            if ('caches' in window) {
+              caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+                window.location.reload();
+              });
+            } else {
+              window.location.reload();
+            }
+          }
+        })
+        .catch(() => {});
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange);
   }, []);
 
   const handleLogout = () => {
