@@ -40,7 +40,6 @@ export default function RootLayout({
       <body
         className={`${notoSansThai.variable} font-sans antialiased bg-slate-900 text-white`}
       >
-        <div className="fixed top-1 left-2 z-50 text-[10px] text-slate-600 pointer-events-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</div>
         {children}
       </body>
     </html>
