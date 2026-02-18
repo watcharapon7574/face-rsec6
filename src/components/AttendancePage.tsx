@@ -126,6 +126,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
     // 3. Today's record
     const today = new Date().toISOString().split('T')[0];
+    let todayRec: { check_in_time: string | null; check_out_time: string | null } | null = null;
     try {
       const { data: rec } = await supabase
         .from('attendance_records')
@@ -133,18 +134,40 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         .eq('teacher_id', session.teacherUuid)
         .eq('date', today)
         .maybeSingle();
+      todayRec = rec;
       setTodayRecord(rec);
     } catch { /* */ }
 
-    // 4. Time check
+    // 4. Time check — also consider today's record
     const timeStatus = getTimeStatus(s);
+    let resolvedAction: AttendanceAction | null = null;
+    let timeOk = timeStatus.canCheckIn || timeStatus.canCheckOut;
+    let timeMsg = timeStatus.message;
+
+    if (timeStatus.canCheckIn) {
+      resolvedAction = 'check_in';
+    } else if (timeStatus.canCheckOut) {
+      resolvedAction = 'check_out';
+    }
+
+    // If check-in window passed but teacher hasn't checked in yet,
+    // still allow late check-in until check_out_start
+    const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const [coH, coM] = (s.check_out_start || '15:30').split(':').map(Number);
+    const coStartMin = coH * 60 + coM;
+
+    if (!resolvedAction && !todayRec?.check_in_time && nowMin < coStartMin) {
+      resolvedAction = 'check_in';
+      timeOk = true;
+      timeMsg = `เข้างานล่าช้า (ก่อน ${s.check_out_start})`;
+    }
+
     setCheckStatus(p => ({
       ...p,
-      time: (timeStatus.canCheckIn || timeStatus.canCheckOut) ? 'passed' : 'failed',
-      timeMsg: timeStatus.message,
+      time: timeOk ? 'passed' : 'failed',
+      timeMsg,
     }));
-    if (timeStatus.canCheckIn) setAction('check_in');
-    else if (timeStatus.canCheckOut) setAction('check_out');
+    if (resolvedAction) setAction(resolvedAction);
 
     // 5. Location check
     let locationOk = false;
