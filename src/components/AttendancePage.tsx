@@ -31,7 +31,7 @@ interface AttendancePageProps {
   onLogout: () => void;
 }
 
-type Phase = 'checking' | 'face_verify' | 'scanning' | 'submitting' | 'success' | 'error';
+type Phase = 'checking' | 'ready_to_verify' | 'face_verify' | 'scanning' | 'submitting' | 'success' | 'error';
 
 export default function AttendancePage({ session, onLogout }: AttendancePageProps) {
   const [phase, setPhase] = useState<Phase>('checking');
@@ -201,7 +201,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     }
 
     if ((timeStatus.canCheckIn || timeStatus.canCheckOut) && locationOk) {
-      setPhase('face_verify');
+      setPhase('ready_to_verify');
     }
   }, [session]);
 
@@ -404,6 +404,20 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         )}
 
         <StatusCheck status={checkStatus} />
+
+        {/* Ready to verify - user must tap to start camera */}
+        {phase === 'ready_to_verify' && allChecksPassed && !alreadyDone && (
+          <div className="w-full max-w-sm text-center py-4">
+            <button
+              onClick={() => setPhase('face_verify')}
+              className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition active:scale-[0.97] shadow-lg shadow-blue-500/30"
+            >
+              <ScanFace className="w-6 h-6" />
+              {action === 'check_in' ? 'ลงเวลาเข้างาน' : 'ลงเวลาออกงาน'}
+            </button>
+            <p className="text-slate-500 text-xs mt-2">กดปุ่มเพื่อเปิดกล้องยืนยันใบหน้า</p>
+          </div>
+        )}
 
         {/* Face verification phase */}
         {phase === 'face_verify' && allChecksPassed && !alreadyDone && (
