@@ -21,26 +21,26 @@ export interface CheckStatus {
 function StatusIcon({ status }: { status: string }) {
   switch (status) {
     case 'passed':
-      return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+      return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
     case 'failed':
-      return <XCircle className="w-4 h-4 text-red-400" />;
+      return <XCircle className="w-4 h-4 text-red-500" />;
     case 'checking':
-      return <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />;
+      return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
     default:
-      return <div className="w-4 h-4 rounded-full bg-slate-600" />;
+      return <div className="w-4 h-4 rounded-full bg-slate-300" />;
   }
 }
 
 function statusColor(status: string): string {
   switch (status) {
     case 'passed':
-      return 'text-emerald-300';
+      return 'text-emerald-600';
     case 'failed':
-      return 'text-red-300';
+      return 'text-red-500';
     case 'checking':
-      return 'text-blue-300';
+      return 'text-blue-600';
     default:
-      return 'text-slate-400';
+      return 'text-slate-500';
   }
 }
 
@@ -48,7 +48,7 @@ export default function StatusCheck({ status }: { status: CheckStatus }) {
   return (
     <div className="w-full max-w-sm mx-auto space-y-2 px-2">
       {/* Location */}
-      <div className="flex items-center gap-3 bg-slate-800/60 backdrop-blur rounded-xl px-4 py-2.5">
+      <div className="flex items-center gap-3 bg-blue-50/80 backdrop-blur rounded-xl px-4 py-2.5 border border-blue-100">
         <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
         <span className={`text-xs flex-1 ${statusColor(status.location)}`}>
           {status.locationMsg || 'ตำแหน่งที่ตั้ง'}
@@ -57,7 +57,7 @@ export default function StatusCheck({ status }: { status: CheckStatus }) {
       </div>
 
       {/* Time */}
-      <div className="flex items-center gap-3 bg-slate-800/60 backdrop-blur rounded-xl px-4 py-2.5">
+      <div className="flex items-center gap-3 bg-blue-50/80 backdrop-blur rounded-xl px-4 py-2.5 border border-blue-100">
         <Clock className="w-4 h-4 text-slate-400 shrink-0" />
         <span className={`text-xs flex-1 ${statusColor(status.time)}`}>
           {status.timeMsg || 'ช่วงเวลา'}
@@ -66,7 +66,7 @@ export default function StatusCheck({ status }: { status: CheckStatus }) {
       </div>
 
       {/* Device */}
-      <div className="flex items-center gap-3 bg-slate-800/60 backdrop-blur rounded-xl px-4 py-2.5">
+      <div className="flex items-center gap-3 bg-blue-50/80 backdrop-blur rounded-xl px-4 py-2.5 border border-blue-100">
         <Fingerprint className="w-4 h-4 text-slate-400 shrink-0" />
         <span className={`text-xs flex-1 ${statusColor(status.device)}`}>
           {status.deviceMsg || 'อุปกรณ์'}

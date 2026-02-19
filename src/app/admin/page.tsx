@@ -188,46 +188,46 @@ export default function AdminPage() {
     if (!error) fetchSettings();
   };
 
-  const inputClass = 'px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500';
+  const inputClass = 'px-3 py-2 bg-white border border-blue-200 rounded-lg text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500';
 
   if (!authed) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex items-center justify-center p-6">
         <div className="w-full max-w-xs text-center">
           <img src="/icons/fastface.png" alt="FastFace" className="w-16 h-16 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-white mb-1">จัดการระบบ</h1>
-          <p className="text-blue-400 text-sm mb-1">{ORG_SHORT}</p>
+          <h1 className="text-xl font-bold text-slate-800 mb-1">จัดการระบบ</h1>
+          <p className="text-blue-600 text-sm mb-1">{ORG_SHORT}</p>
           <p className="text-slate-400 text-xs mb-6">กรอก PIN ผู้ดูแลระบบ</p>
           <input
             type="password" inputMode="numeric" maxLength={6}
             value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, ''))}
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
             placeholder="PIN"
-            className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white text-center text-2xl tracking-[0.5em] placeholder-slate-600 focus:outline-none focus:border-amber-500 mb-4"
+            className="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl text-slate-800 text-center text-2xl tracking-[0.5em] placeholder-slate-400 focus:outline-none focus:border-amber-500 mb-4"
           />
           <button onClick={handleLogin} className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition">
             เข้าสู่ระบบ
           </button>
-          <Link href="/" className="inline-block mt-4 text-slate-500 text-sm hover:text-white transition">← กลับหน้าหลัก</Link>
+          <Link href="/" className="inline-block mt-4 text-slate-400 text-sm hover:text-blue-600 transition">← กลับหน้าหลัก</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <header className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50">
+      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b border-blue-100">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
+          <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition">
             <ArrowLeft className="w-5 h-5" /><span className="text-sm">กลับ</span>
           </Link>
           <div className="flex items-center gap-2">
             <img src="/icons/fastface.png" alt="FastFace" className="w-6 h-6" />
-            <h1 className="text-white font-bold text-sm">{ORG_SHORT} - Admin</h1>
+            <h1 className="text-slate-800 font-bold text-sm">{ORG_SHORT} - Admin</h1>
           </div>
           <div className="w-16" />
         </div>
-        <div className="flex border-b border-slate-800 overflow-x-auto">
+        <div className="flex border-b border-blue-100 overflow-x-auto">
           {([
             { key: 'records' as Tab, label: 'ประวัติ', icon: CalendarDays },
             { key: 'teachers' as Tab, label: 'ครู', icon: Users },
@@ -236,7 +236,7 @@ export default function AdminPage() {
           ] as const).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className={`flex-1 flex items-center justify-center gap-1 py-2.5 text-xs font-medium transition border-b-2 whitespace-nowrap ${
-                tab === key ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-500 hover:text-slate-300'
+                tab === key ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'
               }`}>
               <Icon className="w-3.5 h-3.5" />{label}
             </button>
@@ -250,18 +250,18 @@ export default function AdminPage() {
         {/* RECORDS */}
         {tab === 'records' && !loading && (
           <div>
-            <div className="flex items-center justify-between mb-3 bg-slate-800/60 rounded-xl p-3">
-              <button onClick={() => changeDate(-1)} className="p-1.5 text-slate-400 hover:text-white"><ChevronLeft className="w-5 h-5" /></button>
+            <div className="flex items-center justify-between mb-3 bg-blue-50/80 border border-blue-100 rounded-xl p-3">
+              <button onClick={() => changeDate(-1)} className="p-1.5 text-slate-400 hover:text-blue-600"><ChevronLeft className="w-5 h-5" /></button>
               <div className="text-center">
-                <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="bg-transparent text-white text-center text-sm focus:outline-none" />
+                <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="bg-transparent text-slate-800 text-center text-sm focus:outline-none" />
                 <p className="text-slate-500 text-xs">{formatDate(selectedDate)}</p>
               </div>
-              <button onClick={() => changeDate(1)} className="p-1.5 text-slate-400 hover:text-white"><ChevronRight className="w-5 h-5" /></button>
+              <button onClick={() => changeDate(1)} className="p-1.5 text-slate-400 hover:text-blue-600"><ChevronRight className="w-5 h-5" /></button>
             </div>
 
             {/* Location filter */}
             <select value={filterLocationId} onChange={e => setFilterLocationId(e.target.value)}
-              className="w-full mb-3 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500">
+              className="w-full mb-3 px-3 py-2 bg-white border border-blue-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-blue-500">
               <option value="">ทุกหน่วยบริการ</option>
               {locations.map(l => <option key={l.id} value={l.id}>{l.short_name} - อ.{l.district}</option>)}
             </select>
@@ -273,23 +273,23 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-2">
                 {records.map(r => (
-                  <div key={r.id} className="bg-slate-800/60 rounded-xl p-3">
+                  <div key={r.id} className="bg-blue-50/80 border border-blue-100 rounded-xl p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-white text-sm font-medium">{(r.teachers as unknown as Teacher)?.full_name || '-'}</span>
+                      <span className="text-slate-800 text-sm font-medium">{(r.teachers as unknown as Teacher)?.full_name || '-'}</span>
                       <span className="text-slate-500 text-xs">{(r.teachers as unknown as Teacher)?.teacher_id}</span>
                     </div>
                     <div className="flex gap-4 text-xs">
-                      <span><span className="text-slate-500">เข้า: </span><span className="text-emerald-400">{formatDateTime(r.check_in_time)}</span></span>
-                      <span><span className="text-slate-500">ออก: </span><span className="text-orange-400">{formatDateTime(r.check_out_time)}</span></span>
+                      <span><span className="text-slate-500">เข้า: </span><span className="text-emerald-600">{formatDateTime(r.check_in_time)}</span></span>
+                      <span><span className="text-slate-500">ออก: </span><span className="text-orange-500">{formatDateTime(r.check_out_time)}</span></span>
                     </div>
                     <div className="flex gap-2 mt-1 flex-wrap">
-                      {r.locations && <span className="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded">{(r.locations as unknown as Location).short_name}</span>}
-                      {r.check_in_liveness && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">Face✓</span>}
-                      {r.status === 'late' && <span className="text-[10px] px-1.5 py-0.5 bg-orange-500/20 text-orange-400 rounded">เข้าสาย</span>}
-                      {r.auto_checkout && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ออกอัตโนมัติ</span>}
+                      {r.locations && <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded">{(r.locations as unknown as Location).short_name}</span>}
+                      {r.check_in_liveness && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-600 rounded">Face✓</span>}
+                      {r.status === 'late' && <span className="text-[10px] px-1.5 py-0.5 bg-orange-100 text-orange-600 rounded">เข้าสาย</span>}
+                      {r.auto_checkout && <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">ออกอัตโนมัติ</span>}
                     </div>
                     {r.late_reason && (
-                      <p className="text-[11px] text-orange-300/80 mt-1">เหตุผล: {r.late_reason}</p>
+                      <p className="text-[11px] text-orange-500 mt-1">เหตุผล: {r.late_reason}</p>
                     )}
                   </div>
                 ))}
@@ -301,8 +301,8 @@ export default function AdminPage() {
         {/* TEACHERS */}
         {tab === 'teachers' && !loading && (
           <div>
-            <div className="bg-slate-800/60 rounded-xl p-4 mb-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Plus className="w-4 h-4" /> เพิ่มครู / บุคลากร</h3>
+            <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4 mb-4">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Plus className="w-4 h-4" /> เพิ่มครู / บุคลากร</h3>
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <input placeholder="รหัสครู *" value={newTeacher.teacher_id}
                   onChange={e => setNewTeacher({ ...newTeacher, teacher_id: e.target.value.toUpperCase() })} className={inputClass} />
@@ -319,7 +319,7 @@ export default function AdminPage() {
             <p className="text-slate-400 text-xs mb-3">ทั้งหมด {teachers.length} คน (แตะเพื่อแก้ไข)</p>
             <div className="space-y-2">
               {teachers.map(t => (
-                <div key={t.id} className="bg-slate-800/60 rounded-xl p-3">
+                <div key={t.id} className="bg-blue-50/80 border border-blue-100 rounded-xl p-3">
                   {editingTeacher?.id === t.id ? (
                     <div className="space-y-2">
                       <div className="grid grid-cols-2 gap-2">
@@ -344,23 +344,23 @@ export default function AdminPage() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => updateTeacher(editingTeacher)} className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs">บันทึก</button>
-                        <button onClick={() => setEditingTeacher(null)} className="flex-1 py-1.5 bg-slate-600 text-white rounded-lg text-xs">ยกเลิก</button>
+                        <button onClick={() => setEditingTeacher(null)} className="flex-1 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs">ยกเลิก</button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className="flex-1 cursor-pointer" onClick={() => setEditingTeacher({ ...t })}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-white text-sm font-medium">{t.full_name}</span>
-                          {t.is_admin && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">Admin</span>}
-                          {!t.is_active && <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded">ปิดใช้งาน</span>}
-                          {t.enrollment_status === 'enrolled' && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded">ลงทะเบียนใบหน้าแล้ว</span>}
-                          {t.enrollment_status === 'none' && <span className="text-[10px] px-1.5 py-0.5 bg-slate-500/20 text-slate-400 rounded">ยังไม่ลงทะเบียน</span>}
+                          <span className="text-slate-800 text-sm font-medium">{t.full_name}</span>
+                          {t.is_admin && <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded">Admin</span>}
+                          {!t.is_active && <span className="text-[10px] px-1.5 py-0.5 bg-red-100 text-red-500 rounded">ปิดใช้งาน</span>}
+                          {t.enrollment_status === 'enrolled' && <span className="text-[10px] px-1.5 py-0.5 bg-emerald-100 text-emerald-600 rounded">ลงทะเบียนใบหน้าแล้ว</span>}
+                          {t.enrollment_status === 'none' && <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">ยังไม่ลงทะเบียน</span>}
                         </div>
                         <div className="text-slate-500 text-xs">
                           {t.teacher_id} · {t.position || '-'} · PIN: {t.pin_code}
                         </div>
-                        {t.locations && <div className="text-blue-400 text-xs mt-0.5"><MapPin className="w-3 h-3 inline mr-0.5" />{(t.locations as unknown as Location).short_name}</div>}
+                        {t.locations && <div className="text-blue-600 text-xs mt-0.5"><MapPin className="w-3 h-3 inline mr-0.5" />{(t.locations as unknown as Location).short_name}</div>}
                       </div>
                       <div className="flex items-center gap-1">
                         <button onClick={() => setEditingTeacher({ ...t })} className="p-2 text-slate-500 hover:text-blue-400 transition"><Pencil className="w-4 h-4" /></button>
@@ -377,8 +377,8 @@ export default function AdminPage() {
         {/* LOCATIONS */}
         {tab === 'locations' && !loading && (
           <div>
-            <div className="bg-slate-800/60 rounded-xl p-4 mb-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Plus className="w-4 h-4" /> เพิ่มหน่วยบริการ</h3>
+            <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4 mb-4">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Plus className="w-4 h-4" /> เพิ่มหน่วยบริการ</h3>
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <input placeholder="ชื่อย่อ *" value={newLoc.short_name}
                   onChange={e => setNewLoc({ ...newLoc, short_name: e.target.value })} className={inputClass} />
@@ -399,7 +399,7 @@ export default function AdminPage() {
             <p className="text-slate-400 text-xs mb-3">หน่วยบริการทั้งหมด {locations.length} แห่ง (แตะเพื่อแก้ไข)</p>
             <div className="space-y-2">
               {locations.map(loc => (
-                <div key={loc.id} className="bg-slate-800/60 rounded-xl p-3">
+                <div key={loc.id} className="bg-blue-50/80 border border-blue-100 rounded-xl p-3">
                   {editingLoc?.id === loc.id ? (
                     <div className="space-y-2">
                       <input value={editingLoc.short_name} onChange={e => setEditingLoc({ ...editingLoc, short_name: e.target.value })} className={`w-full ${inputClass}`} />
@@ -413,21 +413,21 @@ export default function AdminPage() {
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => updateLocation(editingLoc)} className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs">บันทึก</button>
-                        <button onClick={() => setEditingLoc(null)} className="flex-1 py-1.5 bg-slate-600 text-white rounded-lg text-xs">ยกเลิก</button>
+                        <button onClick={() => setEditingLoc(null)} className="flex-1 py-1.5 bg-slate-200 text-slate-600 rounded-lg text-xs">ยกเลิก</button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className="flex-1 cursor-pointer" onClick={() => setEditingLoc({ ...loc })}>
                         <div className="flex items-center gap-2">
-                          <span className="text-white text-sm font-medium">{loc.short_name}</span>
-                          {loc.is_headquarters && <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">สำนักงานใหญ่</span>}
+                          <span className="text-slate-800 text-sm font-medium">{loc.short_name}</span>
+                          {loc.is_headquarters && <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-600 rounded">สำนักงานใหญ่</span>}
                         </div>
                         <p className="text-slate-500 text-xs">อ.{loc.district} · รัศมี {loc.radius_meters}m</p>
-                        <p className="text-slate-600 text-[10px]">{loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</p>
+                        <p className="text-slate-400 text-[10px]">{loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4 text-slate-600" />
+                        <MapPin className="w-4 h-4 text-slate-400" />
                         {!loc.is_headquarters && (
                           <button onClick={() => deleteLocation(loc.id, loc.short_name)} className="p-2 text-slate-500 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
                         )}
@@ -443,11 +443,11 @@ export default function AdminPage() {
         {/* SETTINGS */}
         {tab === 'settings' && !loading && settings && (
           <div className="space-y-4">
-            <div className="bg-slate-800/60 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2"><Clock className="w-4 h-4" /> ช่วงเวลาลงเวลา (ใช้ร่วมกันทุกหน่วย)</h3>
+            <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2"><Clock className="w-4 h-4" /> ช่วงเวลาลงเวลา (ใช้ร่วมกันทุกหน่วย)</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-slate-400 text-xs block mb-1">เวลาเข้างาน</label>
+                  <label className="text-slate-500 text-xs block mb-1">เวลาเข้างาน</label>
                   <div className="grid grid-cols-2 gap-2">
                     <div><span className="text-slate-500 text-[10px]">เริ่ม</span>
                       <input type="time" value={settingsForm.check_in_start || ''} onChange={e => setSettingsForm({ ...settingsForm, check_in_start: e.target.value })} className={`w-full ${inputClass}`} /></div>
@@ -456,13 +456,13 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-slate-400 text-xs block mb-1">เข้าสายหลังเวลา</label>
+                  <label className="text-slate-500 text-xs block mb-1">เข้าสายหลังเวลา</label>
                   <input type="time" value={settingsForm.late_after || '08:30'} onChange={e => setSettingsForm({ ...settingsForm, late_after: e.target.value })}
                     className={`w-full ${inputClass}`} />
                   <p className="text-slate-500 text-[10px] mt-1">ลงเวลาเข้าหลังเวลานี้จะถูกบันทึกเป็น &quot;เข้าสาย&quot;</p>
                 </div>
                 <div>
-                  <label className="text-slate-400 text-xs block mb-1">เวลาออกงาน</label>
+                  <label className="text-slate-500 text-xs block mb-1">เวลาออกงาน</label>
                   <div className="grid grid-cols-2 gap-2">
                     <div><span className="text-slate-500 text-[10px]">เริ่ม</span>
                       <input type="time" value={settingsForm.check_out_start || ''} onChange={e => setSettingsForm({ ...settingsForm, check_out_start: e.target.value })} className={`w-full ${inputClass}`} /></div>
@@ -472,10 +472,10 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
-            <div className="bg-slate-800/60 rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">ค่าความแม่นยำการจับคู่ใบหน้า</h3>
+            <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3">ค่าความแม่นยำการจับคู่ใบหน้า</h3>
               <div>
-                <label className="text-slate-400 text-xs block mb-1">Threshold (ค่ายิ่งต่ำ ยิ่งเข้มงวด, แนะนำ 0.4–0.6)</label>
+                <label className="text-slate-500 text-xs block mb-1">Threshold (ค่ายิ่งต่ำ ยิ่งเข้มงวด, แนะนำ 0.4–0.6)</label>
                 <input type="number" step="0.05" min="0.1" max="1.0"
                   value={settingsForm.face_match_threshold ?? 0.5}
                   onChange={e => setSettingsForm({ ...settingsForm, face_match_threshold: parseFloat(e.target.value) })}
@@ -485,7 +485,7 @@ export default function AdminPage() {
             <button onClick={saveSettings} className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition">
               <Save className="w-5 h-5" />บันทึกการตั้งค่า
             </button>
-            {saveMsg && <p className={`text-center text-sm ${saveMsg.includes('สำเร็จ') ? 'text-emerald-400' : 'text-red-400'}`}>{saveMsg}</p>}
+            {saveMsg && <p className={`text-center text-sm ${saveMsg.includes('สำเร็จ') ? 'text-emerald-600' : 'text-red-500'}`}>{saveMsg}</p>}
           </div>
         )}
       </main>

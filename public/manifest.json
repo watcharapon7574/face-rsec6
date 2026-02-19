@@ -4,7 +4,7 @@
   "description": "ระบบลงเวลาเข้า-ออกงาน ศูนย์การศึกษาพิเศษ เขตการศึกษา 6 จังหวัดลพบุรี",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#f8fafc",
   "theme_color": "#3b82f6",
   "orientation": "portrait",
   "icons": [

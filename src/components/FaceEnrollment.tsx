@@ -122,13 +122,13 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
   }, [phase, samples, session.teacherUuid, stopCamera]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <header className="px-4 py-3 bg-slate-900/80 backdrop-blur flex items-center justify-center gap-2.5">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex flex-col">
+      <header className="px-4 py-3 bg-white/80 backdrop-blur border-b border-blue-100 flex items-center justify-center gap-2.5">
         <img src="/icons/fastface.png" alt="FastFace" className="w-9 h-9" />
         <div>
-          <h1 className="text-white font-bold text-sm leading-tight">{ORG_SHORT}</h1>
-          <p className="text-blue-400 text-xs">ลงทะเบียนใบหน้า</p>
-          <p className="text-slate-400 text-[11px]">{session.fullName}</p>
+          <h1 className="text-slate-800 font-bold text-sm leading-tight">{ORG_SHORT}</h1>
+          <p className="text-blue-600 text-xs">ลงทะเบียนใบหน้า</p>
+          <p className="text-slate-500 text-[11px]">{session.fullName}</p>
         </div>
       </header>
 
@@ -212,7 +212,7 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
         )}
 
         {phase === 'saving' && (
-          <div className="flex items-center gap-2 text-blue-400">
+          <div className="flex items-center gap-2 text-blue-600">
             <Loader2 className="w-5 h-5 animate-spin" />
             <span className="text-sm">กำลังบันทึก...</span>
           </div>
@@ -231,7 +231,7 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
         {phase === 'error' && (
           <button
             onClick={() => window.location.reload()}
-            className="w-full max-w-sm py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm"
+            className="w-full max-w-sm py-3 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl text-sm"
           >
             ลองใหม่
           </button>

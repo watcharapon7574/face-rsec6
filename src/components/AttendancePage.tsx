@@ -431,24 +431,24 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     (action === 'check_out' && todayRecord?.check_out_time);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <header className="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex flex-col">
+      <header className="flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur sticky top-0 z-10 border-b border-blue-100">
         <div className="flex items-center gap-2.5">
           <img src="/icons/fastface.png" alt="FastFace" className="w-9 h-9" />
           <div>
-            <p className="text-slate-600 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
-            <h1 className="text-white font-bold text-base leading-tight">{ORG_SHORT}</h1>
-            <p className="text-slate-400 text-xs">{session.fullName}</p>
+            <p className="text-slate-400 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
+            <h1 className="text-slate-800 font-bold text-base leading-tight">{ORG_SHORT}</h1>
+            <p className="text-slate-500 text-xs">{session.fullName}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-blue-400 font-mono text-sm tabular-nums">{currentTime}</span>
+          <span className="text-blue-600 font-mono text-sm tabular-nums">{currentTime}</span>
           {session.isAdmin ? (
-            <a href="/admin" className="p-2 text-amber-400 hover:text-amber-300 transition" title="จัดการระบบ">
+            <a href="/admin" className="p-2 text-amber-600 hover:text-amber-500 transition" title="จัดการระบบ">
               <SettingsIcon className="w-5 h-5" />
             </a>
           ) : (
-            <button onClick={openProfile} className="p-2 text-slate-400 hover:text-white transition" title="ข้อมูลส่วนตัว">
+            <button onClick={openProfile} className="p-2 text-slate-400 hover:text-blue-600 transition" title="ข้อมูลส่วนตัว">
               <SettingsIcon className="w-5 h-5" />
             </button>
           )}
@@ -457,28 +457,28 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
       <main className="flex-1 flex flex-col items-center px-4 py-4 gap-4 overflow-auto">
         {matchedLocation && (
-          <div className="w-full max-w-sm bg-blue-500/10 border border-blue-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
+          <div className="w-full max-w-sm bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
             <div>
-              <p className="text-blue-300 text-sm font-medium">{matchedLocation.short_name}</p>
+              <p className="text-blue-700 text-sm font-medium">{matchedLocation.short_name}</p>
               <p className="text-slate-500 text-xs">อ.{matchedLocation.district}</p>
             </div>
           </div>
         )}
 
         {todayRecord && (
-          <div className="w-full max-w-sm bg-slate-800/60 backdrop-blur rounded-xl p-3">
-            <p className="text-slate-400 text-xs mb-1">สถานะวันนี้</p>
+          <div className="w-full max-w-sm bg-blue-50/80 backdrop-blur rounded-xl p-3 border border-blue-100">
+            <p className="text-slate-500 text-xs mb-1">สถานะวันนี้</p>
             <div className="flex gap-4 text-sm">
               <div>
                 <span className="text-slate-500">เข้า: </span>
-                <span className="text-emerald-400">
+                <span className="text-emerald-600">
                   {todayRecord.check_in_time ? new Date(todayRecord.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '-'}
                 </span>
               </div>
               <div>
                 <span className="text-slate-500">ออก: </span>
-                <span className="text-orange-400">
+                <span className="text-orange-500">
                   {todayRecord.check_out_time ? new Date(todayRecord.check_out_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '-'}
                 </span>
               </div>
@@ -528,7 +528,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
                   <p className="text-emerald-400 text-sm font-medium">ยืนยันใบหน้าสำเร็จ</p>
-                  <p className="text-slate-400 text-xs">ขั้นตอนที่ 2: กะพริบตาและขยับหน้าเล็กน้อย</p>
+                  <p className="text-slate-500 text-xs">ขั้นตอนที่ 2: กะพริบตาและขยับหน้าเล็กน้อย</p>
                 </div>
               </div>
             </div>
@@ -539,7 +539,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         {alreadyDone && (
           <div className="w-full max-w-sm text-center py-8">
             <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto mb-3" />
-            <p className="text-white text-lg font-semibold">
+            <p className="text-slate-800 text-lg font-semibold">
               {action === 'check_in' ? 'ลงเวลาเข้างานแล้ววันนี้' : 'ลงเวลาออกงานแล้ววันนี้'}
             </p>
           </div>
@@ -548,29 +548,29 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
         {phase === 'submitting' && (
           <div className="w-full max-w-sm text-center py-8">
             <Loader2 className="w-12 h-12 text-blue-400 animate-spin mx-auto mb-3" />
-            <p className="text-white">กำลังบันทึก...</p>
+            <p className="text-slate-800">กำลังบันทึก...</p>
           </div>
         )}
 
         {phase === 'success' && (
           <div className="w-full max-w-sm text-center py-8">
-            <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400" />
+            <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500" />
             </div>
-            <p className="text-emerald-400 text-xl font-bold mb-2">สำเร็จ!</p>
-            <p className="text-white">{resultMsg}</p>
+            <p className="text-emerald-600 text-xl font-bold mb-2">สำเร็จ!</p>
+            <p className="text-slate-800">{resultMsg}</p>
           </div>
         )}
 
         {phase === 'error' && (
           <div className="w-full max-w-sm text-center py-8">
-            <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-              <XCircle className="w-12 h-12 text-red-400" />
+            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+              <XCircle className="w-12 h-12 text-red-500" />
             </div>
-            <p className="text-red-400 text-xl font-bold mb-2">ไม่สำเร็จ</p>
-            <p className="text-white text-sm">{resultMsg}</p>
+            <p className="text-red-500 text-xl font-bold mb-2">ไม่สำเร็จ</p>
+            <p className="text-slate-700 text-sm">{resultMsg}</p>
             <div className="flex flex-col items-center gap-3 mt-4">
-              <button onClick={runChecks} className="px-6 py-2.5 bg-slate-700 text-white rounded-xl text-sm flex items-center gap-2 hover:bg-slate-600 transition">
+              <button onClick={runChecks} className="px-6 py-2.5 bg-blue-100 text-blue-700 rounded-xl text-sm flex items-center gap-2 hover:bg-blue-200 transition">
                 <RotateCcw className="w-4 h-4" />ลองใหม่
               </button>
               {isFaceMismatch && (
@@ -587,15 +587,15 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
         {phase === 'checking' && (checkStatus.time === 'failed' || checkStatus.location === 'failed') && (
           <div className="w-full max-w-sm text-center py-4">
-            <button onClick={runChecks} className="px-6 py-2.5 bg-slate-700 text-white rounded-xl text-sm flex items-center gap-2 mx-auto hover:bg-slate-600 transition">
+            <button onClick={runChecks} className="px-6 py-2.5 bg-blue-100 text-blue-700 rounded-xl text-sm flex items-center gap-2 mx-auto hover:bg-blue-200 transition">
               <RotateCcw className="w-4 h-4" />ตรวจสอบใหม่
             </button>
           </div>
         )}
       </main>
 
-      <footer className="px-4 py-3 bg-slate-900/80 backdrop-blur text-center">
-        <button onClick={onLogout} className="text-slate-500 text-xs hover:text-red-400 transition">
+      <footer className="px-4 py-3 bg-white/80 backdrop-blur text-center border-t border-blue-100">
+        <button onClick={onLogout} className="text-slate-400 text-xs hover:text-red-500 transition">
           เปลี่ยนบัญชี
         </button>
       </footer>
@@ -603,27 +603,27 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
       {/* Profile modal */}
       {showProfile && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowProfile(false)}>
-          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-white rounded-t-2xl sm:rounded-2xl p-5 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white font-bold text-base">ข้อมูลส่วนตัว</h2>
-              <button onClick={() => setShowProfile(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+              <h2 className="text-slate-800 font-bold text-base">ข้อมูลส่วนตัว</h2>
+              <button onClick={() => setShowProfile(false)} className="p-1 text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-slate-400 text-xs block mb-1">ชื่อ-นามสกุล</label>
+                <label className="text-slate-500 text-xs block mb-1">ชื่อ-นามสกุล</label>
                 <input value={profileForm.full_name} onChange={e => setProfileForm({ ...profileForm, full_name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500" />
+                  className="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-blue-500" />
               </div>
               <div>
-                <label className="text-slate-400 text-xs block mb-1">ตำแหน่ง</label>
+                <label className="text-slate-500 text-xs block mb-1">ตำแหน่ง</label>
                 <input value={profileForm.position} onChange={e => setProfileForm({ ...profileForm, position: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500" />
+                  className="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-blue-500" />
               </div>
               <div>
-                <label className="text-slate-400 text-xs block mb-1">PIN</label>
+                <label className="text-slate-500 text-xs block mb-1">PIN</label>
                 <input value={profileForm.pin_code} onChange={e => setProfileForm({ ...profileForm, pin_code: e.target.value.replace(/\D/g, '') })}
                   maxLength={6} inputMode="numeric"
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm tracking-widest focus:outline-none focus:border-blue-500" />
+                  className="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-slate-800 text-sm tracking-widest focus:outline-none focus:border-blue-500" />
               </div>
               {profileMsg && <p className={`text-xs text-center ${profileMsg.includes('สำเร็จ') ? 'text-emerald-400' : 'text-red-400'}`}>{profileMsg}</p>}
               <button onClick={saveProfile} disabled={profileSaving}
@@ -639,21 +639,21 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
       {/* Late reason modal */}
       {showLateReason && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
-            <h2 className="text-white font-bold text-base mb-1">เข้างานสาย</h2>
-            <p className="text-slate-400 text-xs mb-3">กรุณาระบุเหตุผลที่เข้างานสาย</p>
+          <div className="w-full max-w-sm bg-white rounded-t-2xl sm:rounded-2xl p-5 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="text-slate-800 font-bold text-base mb-1">เข้างานสาย</h2>
+            <p className="text-slate-500 text-xs mb-3">กรุณาระบุเหตุผลที่เข้างานสาย</p>
             <textarea
               value={lateReason}
               onChange={e => setLateReason(e.target.value)}
               placeholder="เหตุผล..."
               rows={3}
-              className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-orange-500 resize-none"
+              className="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-orange-500 resize-none"
               autoFocus
             />
             <button
               onClick={() => { setShowLateReason(false); handleSubmit(); }}
               disabled={!lateReason.trim()}
-              className="w-full mt-3 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-600 disabled:text-slate-400 text-white font-medium rounded-lg text-sm transition"
+              className="w-full mt-3 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-200 disabled:text-slate-400 text-white font-medium rounded-lg text-sm transition"
             >
               ยืนยันลงเวลา
             </button>
@@ -664,14 +664,14 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
       {/* Face update PIN modal */}
       {showPinModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowPinModal(false)}>
-          <div className="w-full max-w-sm bg-slate-800 rounded-t-2xl sm:rounded-2xl p-5" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-white rounded-t-2xl sm:rounded-2xl p-5 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white font-bold text-base">อัพเดทใบหน้า</h2>
-              <button onClick={() => setShowPinModal(false)} className="p-1 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+              <h2 className="text-slate-800 font-bold text-base">อัพเดทใบหน้า</h2>
+              <button onClick={() => setShowPinModal(false)} className="p-1 text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
             </div>
 
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 mb-4">
-              <p className="text-amber-300 text-xs leading-relaxed">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
+              <p className="text-amber-700 text-xs leading-relaxed">
                 กรุณายืนยัน PIN เพื่ออัพเดทใบหน้า ระบบจะรีเซ็ตใบหน้าเดิมและให้ลงทะเบียนใหม่
               </p>
               <p className="text-slate-400 text-[10px] mt-1">
@@ -681,7 +681,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
             <div className="space-y-3">
               <div>
-                <label className="text-slate-400 text-xs block mb-1">PIN</label>
+                <label className="text-slate-500 text-xs block mb-1">PIN</label>
                 <input
                   value={pinInput}
                   onChange={e => setPinInput(e.target.value.replace(/\D/g, ''))}
@@ -689,7 +689,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
                   inputMode="numeric"
                   autoFocus
                   placeholder="กรอก PIN 4-6 หลัก"
-                  className="w-full px-3 py-2.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm tracking-widest text-center focus:outline-none focus:border-amber-500"
+                  className="w-full px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg text-slate-800 text-sm tracking-widest text-center focus:outline-none focus:border-amber-500"
                 />
               </div>
               {pinError && <p className="text-red-400 text-xs text-center">{pinError}</p>}
