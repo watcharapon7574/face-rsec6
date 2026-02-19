@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="th">
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${notoSansThai.variable} font-sans antialiased bg-slate-900 text-white`}
