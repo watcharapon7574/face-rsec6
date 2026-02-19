@@ -18,7 +18,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Shield,
   Building2,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -195,9 +194,7 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
         <div className="w-full max-w-xs text-center">
-          <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-8 h-8 text-amber-400" />
-          </div>
+          <img src="/icons/fastface.png" alt="FastFace" className="w-16 h-16 mx-auto mb-4" />
           <h1 className="text-xl font-bold text-white mb-1">จัดการระบบ</h1>
           <p className="text-blue-400 text-sm mb-1">{ORG_SHORT}</p>
           <p className="text-slate-400 text-xs mb-6">กรอก PIN ผู้ดูแลระบบ</p>
@@ -224,7 +221,10 @@ export default function AdminPage() {
           <Link href="/" className="flex items-center gap-2 text-slate-400 hover:text-white transition">
             <ArrowLeft className="w-5 h-5" /><span className="text-sm">กลับ</span>
           </Link>
-          <h1 className="text-white font-bold text-sm">{ORG_SHORT} - Admin</h1>
+          <div className="flex items-center gap-2">
+            <img src="/icons/fastface.png" alt="FastFace" className="w-6 h-6" />
+            <h1 className="text-white font-bold text-sm">{ORG_SHORT} - Admin</h1>
+          </div>
           <div className="w-16" />
         </div>
         <div className="flex border-b border-slate-800 overflow-x-auto">

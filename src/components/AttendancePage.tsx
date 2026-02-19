@@ -433,10 +433,13 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col">
       <header className="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
-        <div>
-          <p className="text-slate-600 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
-          <h1 className="text-white font-bold text-base leading-tight">{ORG_SHORT}</h1>
-          <p className="text-slate-400 text-xs">{session.fullName}</p>
+        <div className="flex items-center gap-2.5">
+          <img src="/icons/fastface.png" alt="FastFace" className="w-9 h-9" />
+          <div>
+            <p className="text-slate-600 text-[10px] leading-none">v{process.env.NEXT_PUBLIC_APP_VERSION}</p>
+            <h1 className="text-white font-bold text-base leading-tight">{ORG_SHORT}</h1>
+            <p className="text-slate-400 text-xs">{session.fullName}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-blue-400 font-mono text-sm tabular-nums">{currentTime}</span>

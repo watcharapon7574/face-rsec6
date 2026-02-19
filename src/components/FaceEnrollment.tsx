@@ -123,10 +123,13 @@ export default function FaceEnrollment({ session, onComplete }: FaceEnrollmentPr
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex flex-col">
-      <header className="px-4 py-3 bg-slate-900/80 backdrop-blur text-center">
-        <h1 className="text-white font-bold">{ORG_SHORT}</h1>
-        <p className="text-blue-400 text-sm">ลงทะเบียนใบหน้า</p>
-        <p className="text-slate-400 text-xs">{session.fullName}</p>
+      <header className="px-4 py-3 bg-slate-900/80 backdrop-blur flex items-center justify-center gap-2.5">
+        <img src="/icons/fastface.png" alt="FastFace" className="w-9 h-9" />
+        <div>
+          <h1 className="text-white font-bold text-sm leading-tight">{ORG_SHORT}</h1>
+          <p className="text-blue-400 text-xs">ลงทะเบียนใบหน้า</p>
+          <p className="text-slate-400 text-[11px]">{session.fullName}</p>
+        </div>
       </header>
 
       <main className="flex-1 flex flex-col items-center px-4 py-6 gap-4">

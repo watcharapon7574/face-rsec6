@@ -65,9 +65,7 @@ export default function SetupForm({ onComplete }: SetupFormProps) {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserCircle className="w-12 h-12 text-blue-400" />
-          </div>
+          <img src="/icons/fastface.png" alt="FastFace" className="w-20 h-20 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-1">{ORG_SHORT}</h1>
           <p className="text-blue-400 text-sm">{ORG_NAME}</p>
           <p className="text-slate-400 text-xs mt-2">เชื่อมบัญชีครั้งแรกเพื่อใช้งาน</p>
