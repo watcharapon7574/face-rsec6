@@ -14,23 +14,25 @@ export async function GET(request: NextRequest) {
     // Get settings
     const { data: settings } = await supabase
       .from('attendance_settings')
-      .select('check_out_start, check_out_end')
+      .select('check_out_start')
       .single();
 
     if (!settings) {
       return NextResponse.json({ error: 'No settings found' }, { status: 500 });
     }
 
-    // Calculate Thai date
+    // Calculate cutoff: 7 days ago (catch any missed days)
     const now = new Date();
     const thaiNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
-    const today = `${thaiNow.getFullYear()}-${String(thaiNow.getMonth() + 1).padStart(2, '0')}-${String(thaiNow.getDate()).padStart(2, '0')}`;
+    const cutoff = new Date(thaiNow);
+    cutoff.setDate(cutoff.getDate() - 7);
+    const cutoffDate = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
 
-    // Find records with check-in but no check-out today
+    // Find ALL records (last 7 days) with check-in but no check-out
     const { data: pendingRecords, error: fetchErr } = await supabase
       .from('attendance_records')
-      .select('id')
-      .eq('date', today)
+      .select('id, date')
+      .gte('date', cutoffDate)
       .not('check_in_time', 'is', null)
       .is('check_out_time', null);
 
@@ -42,31 +44,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'No pending records', count: 0 });
     }
 
-    // Build auto check-out time: today's date + check_out_start in Thai timezone
-    // e.g., "2025-01-15T16:00:00+07:00"
-    const autoCheckoutTime = `${today}T${settings.check_out_start}+07:00`;
+    // Update each record: check_out_time = record's own date + check_out_start
+    let updated = 0;
+    for (const record of pendingRecords) {
+      const autoCheckoutTime = `${record.date}T${settings.check_out_start}+07:00`;
+      const { error: updateErr } = await supabase
+        .from('attendance_records')
+        .update({
+          check_out_time: autoCheckoutTime,
+          check_out_liveness: false,
+          check_out_face_match: null,
+          auto_checkout: true,
+        })
+        .eq('id', record.id);
 
-    // Update all pending records
-    const ids = pendingRecords.map((r) => r.id);
-    const { error: updateErr, count } = await supabase
-      .from('attendance_records')
-      .update({
-        check_out_time: autoCheckoutTime,
-        check_out_liveness: false,
-        check_out_face_match: null,
-        auto_checkout: true,
-      })
-      .in('id', ids);
-
-    if (updateErr) {
-      return NextResponse.json({ error: updateErr.message }, { status: 500 });
+      if (!updateErr) updated++;
     }
 
     return NextResponse.json({
       success: true,
-      message: `Auto check-out completed for ${count ?? ids.length} records`,
-      count: count ?? ids.length,
-      date: today,
+      message: `Auto check-out completed for ${updated} records`,
+      count: updated,
     });
   } catch (err) {
     console.error('Auto-checkout cron error:', err);
