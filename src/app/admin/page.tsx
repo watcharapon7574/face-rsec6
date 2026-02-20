@@ -427,7 +427,7 @@ export default function AdminPage() {
                         <p className="text-slate-400 text-[10px]">{loc.lat.toFixed(4)}, {loc.lng.toFixed(4)}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4 text-slate-400" />
+                        <button onClick={() => setEditingLoc({ ...loc })} className="p-2 text-slate-500 hover:text-blue-400 transition"><Pencil className="w-4 h-4" /></button>
                         {!loc.is_headquarters && (
                           <button onClick={() => deleteLocation(loc.id, loc.short_name)} className="p-2 text-slate-500 hover:text-red-400 transition"><Trash2 className="w-4 h-4" /></button>
                         )}
