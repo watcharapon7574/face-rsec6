@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SESSION_KEY, ORG_NAME, ORG_SHORT } from '@/lib/constants';
+import { SESSION_KEY, ORG_NAME } from '@/lib/constants';
 import type { UserSession } from '@/lib/types';
 import { UserCircle, KeyRound, Loader2, AlertCircle } from 'lucide-react';
 
@@ -63,10 +63,9 @@ export default function SetupForm({ onComplete }: SetupFormProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-xs">
         <div className="text-center mb-8">
-          <img src="/icons/fastface.png" alt="FastFace" className="w-20 h-20 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-800 mb-1">{ORG_SHORT}</h1>
+          <img src="/icons/fastface.png" alt="FastFace" className="w-40 h-40 mx-auto mb-4" />
           <p className="text-blue-600 text-sm">{ORG_NAME}</p>
           <p className="text-slate-400 text-xs mt-2">เชื่อมบัญชีครั้งแรกเพื่อใช้งาน</p>
         </div>
@@ -81,7 +80,7 @@ export default function SetupForm({ onComplete }: SetupFormProps) {
                 value={teacherId}
                 onChange={(e) => setTeacherId(e.target.value.toUpperCase())}
                 placeholder="เช่น T001"
-                className="w-full pl-11 pr-4 py-3 bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition text-sm"
+                className="w-full pl-11 pr-4 py-2.5 bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition text-sm"
                 autoFocus
               />
             </div>
@@ -98,7 +97,7 @@ export default function SetupForm({ onComplete }: SetupFormProps) {
                 value={pinCode}
                 onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ''))}
                 placeholder="PIN 4-6 หลัก"
-                className="w-full pl-11 pr-4 py-3 bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition text-sm tracking-widest"
+                className="w-full pl-11 pr-4 py-2.5 bg-white border border-blue-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition text-sm tracking-widest"
               />
             </div>
           </div>
