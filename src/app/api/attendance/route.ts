@@ -123,17 +123,19 @@ export async function POST(request: NextRequest) {
         isServiceUnit = loc ? !loc.is_headquarters : false;
       }
 
-      // หน่วยบริการ: เข้าหลัง late_after ไม่เกิน 30 นาที → บันทึกเป็นเวลา late_after (ไม่สาย)
+      // หน่วยบริการ: เข้าหลัง late_after ไม่เกิน 30 นาที → สุ่มเวลาในครึ่งชม.ก่อน late_after (ไม่สาย)
       let checkInStatus: string;
       let recordTime: string;
       if (isServiceUnit && currentMinutes > lateAfterMin && currentMinutes <= graceMin) {
         checkInStatus = 'present';
-        // สร้างเวลา late_after ของวันนี้ (เช่น 08:30 ไทย = 01:30 UTC)
-        const lateHour = Math.floor(lateAfterMin / 60);
-        const lateMinute = lateAfterMin % 60;
+        // สุ่มเวลาในช่วง 30 นาทีก่อน late_after (เช่น 08:00-08:29 ถ้า late_after=08:30)
+        const randomMin = (lateAfterMin - 30) + Math.floor(Math.random() * 30);
+        const rHour = Math.floor(randomMin / 60);
+        const rMinute = randomMin % 60;
+        const rSecond = Math.floor(Math.random() * 60);
         recordTime = new Date(Date.UTC(
           thaiNow.getFullYear(), thaiNow.getMonth(), thaiNow.getDate(),
-          lateHour - 7, lateMinute, 0, 0
+          rHour - 7, rMinute, rSecond, 0
         )).toISOString();
       } else {
         checkInStatus = currentMinutes > lateAfterMin ? 'late' : 'present';
