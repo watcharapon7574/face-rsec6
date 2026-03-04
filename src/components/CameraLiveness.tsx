@@ -25,6 +25,7 @@ export default function CameraLiveness({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const detectorRef = useRef<unknown>(null);
+  const meshRef = useRef<{ start: number; end: number }[]>([]);
   const animFrameRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
 
@@ -109,6 +110,7 @@ export default function CameraLiveness({
       );
 
       detectorRef.current = faceLandmarker;
+      meshRef.current = FaceLandmarker.FACE_LANDMARKS_TESSELATION;
       setDebugInfo((p) => ({ ...p, modelLoaded: true }));
       return faceLandmarker;
     } catch (err) {
@@ -194,7 +196,7 @@ export default function CameraLiveness({
           return next;
         });
 
-        // Draw face overlay
+        // Draw face mesh grid
         if (canvasRef.current && videoRef.current) {
           const ctx = canvasRef.current.getContext('2d');
           if (ctx) {
@@ -202,20 +204,20 @@ export default function CameraLiveness({
             canvasRef.current.height = h;
             ctx.clearRect(0, 0, w, h);
 
-            const noseTip = landmarks[1];
-            if (noseTip) {
+            // Draw tessellation mesh lines
+            const connections = meshRef.current;
+            if (connections.length > 0) {
               ctx.beginPath();
-              ctx.ellipse(
-                noseTip.x,
-                noseTip.y - 20,
-                80,
-                110,
-                0,
-                0,
-                2 * Math.PI
-              );
-              ctx.strokeStyle = '#3b82f6';
-              ctx.lineWidth = 3;
+              ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+              ctx.lineWidth = 0.5;
+              for (const c of connections) {
+                const a = landmarks[c.start];
+                const b = landmarks[c.end];
+                if (a && b) {
+                  ctx.moveTo(a.x, a.y);
+                  ctx.lineTo(b.x, b.y);
+                }
+              }
               ctx.stroke();
             }
           }
