@@ -22,13 +22,19 @@ export async function extractDescriptor(
   videoOrCanvas: HTMLVideoElement | HTMLCanvasElement
 ): Promise<Float32Array | null> {
   const api = await loadFaceApi();
-  const detection = await api
-    .detectSingleFace(videoOrCanvas)
-    .withFaceLandmarks()
-    .withFaceDescriptor();
+  const options = new api.SsdMobilenetv1Options({ minConfidence: 0.3 });
 
-  if (!detection) return null;
-  return detection.descriptor;
+  // Try up to 3 times with short delays
+  for (let i = 0; i < 3; i++) {
+    const detection = await api
+      .detectSingleFace(videoOrCanvas, options)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+
+    if (detection) return detection.descriptor;
+    if (i < 2) await new Promise(r => setTimeout(r, 300));
+  }
+  return null;
 }
 
 export function computeDistance(a: number[] | Float32Array, b: number[] | Float32Array): number {
