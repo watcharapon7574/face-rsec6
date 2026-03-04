@@ -163,15 +163,17 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     const [coH, coM] = (s.check_out_start || '15:30').split(':').map(Number);
     const coStartMin = coH * 60 + coM;
 
+    let isLate = false;
     if (!resolvedAction && !todayRec?.check_in_time && nowMin < coStartMin) {
       resolvedAction = 'check_in';
       timeOk = true;
-      timeMsg = `เข้างานล่าช้า (ก่อน ${s.check_out_start})`;
+      isLate = true;
+      timeMsg = 'เข้างานสาย';
     }
 
     setCheckStatus(p => ({
       ...p,
-      time: timeOk ? 'passed' : 'failed',
+      time: timeOk ? (isLate ? 'warning' : 'passed') : 'failed',
       timeMsg,
     }));
     if (resolvedAction) setAction(resolvedAction);
@@ -423,7 +425,7 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
 
   const allChecksPassed =
     checkStatus.location === 'passed' &&
-    checkStatus.time === 'passed' &&
+    (checkStatus.time === 'passed' || checkStatus.time === 'warning') &&
     checkStatus.device === 'passed';
 
   const alreadyDone =

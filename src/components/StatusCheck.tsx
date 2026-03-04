@@ -9,19 +9,23 @@ import {
   Loader2,
 } from 'lucide-react';
 
+export type CheckState = 'checking' | 'passed' | 'warning' | 'failed' | 'idle';
+
 export interface CheckStatus {
-  location: 'checking' | 'passed' | 'failed' | 'idle';
+  location: CheckState;
   locationMsg: string;
-  time: 'checking' | 'passed' | 'failed' | 'idle';
+  time: CheckState;
   timeMsg: string;
-  device: 'checking' | 'passed' | 'failed' | 'idle';
+  device: CheckState;
   deviceMsg: string;
 }
 
-function StatusIcon({ status }: { status: string }) {
+function StatusIcon({ status }: { status: CheckState }) {
   switch (status) {
     case 'passed':
       return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
+    case 'warning':
+      return <CheckCircle2 className="w-4 h-4 text-orange-500" />;
     case 'failed':
       return <XCircle className="w-4 h-4 text-red-500" />;
     case 'checking':
@@ -31,10 +35,12 @@ function StatusIcon({ status }: { status: string }) {
   }
 }
 
-function statusColor(status: string): string {
+function statusColor(status: CheckState): string {
   switch (status) {
     case 'passed':
       return 'text-emerald-600';
+    case 'warning':
+      return 'text-orange-500';
     case 'failed':
       return 'text-red-500';
     case 'checking':
