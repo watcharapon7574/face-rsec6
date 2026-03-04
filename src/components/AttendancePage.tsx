@@ -491,8 +491,6 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
           </div>
         )}
 
-        <StatusCheck status={checkStatus} />
-
         {/* Ready to verify - user must tap to start camera */}
         {phase === 'ready_to_verify' && allChecksPassed && !alreadyDone && (
           <div className="w-full max-w-sm text-center py-4">
@@ -604,6 +602,8 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
             </button>
           </div>
         )}
+
+        <StatusCheck status={checkStatus} />
       </main>
 
       <footer className="px-4 py-3 bg-white/80 backdrop-blur text-center border-t border-blue-100">
