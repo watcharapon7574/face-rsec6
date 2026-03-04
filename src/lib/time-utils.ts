@@ -33,7 +33,7 @@ export function getTimeStatus(settings: AttendanceSettings): TimeStatus {
   if (canCheckIn) {
     const lateAfter = timeToMinutes(settings.late_after || '08:30');
     if (now > lateAfter) {
-      message = `เข้างานสาย (ก่อน ${settings.check_out_start})`;
+      message = 'เข้างานสาย';
     } else {
       message = `เวลาเข้างาน (${settings.check_in_start} - ${settings.check_out_start})`;
     }

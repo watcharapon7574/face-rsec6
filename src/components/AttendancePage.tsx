@@ -163,7 +163,10 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
     const [coH, coM] = (s.check_out_start || '15:30').split(':').map(Number);
     const coStartMin = coH * 60 + coM;
 
-    let isLate = false;
+    // Detect late: either within check-in window but after late_after, or fallback late
+    const lateAfterMin = s.late_after ? (() => { const [h, m] = s.late_after.split(':').map(Number); return h * 60 + m; })() : 0;
+    let isLate = timeStatus.canCheckIn && lateAfterMin > 0 && nowMin > lateAfterMin;
+
     if (!resolvedAction && !todayRec?.check_in_time && nowMin < coStartMin) {
       resolvedAction = 'check_in';
       timeOk = true;
