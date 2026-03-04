@@ -24,15 +24,37 @@ export async function extractDescriptor(
   const api = await loadFaceApi();
   const options = new api.SsdMobilenetv1Options({ minConfidence: 0.3 });
 
+  // Android Chrome can't read pixels directly from video element,
+  // so we draw the frame onto a canvas first
+  let input: HTMLCanvasElement | HTMLVideoElement = videoOrCanvas;
+  if (videoOrCanvas instanceof HTMLVideoElement) {
+    const vw = videoOrCanvas.videoWidth;
+    const vh = videoOrCanvas.videoHeight;
+    if (vw > 0 && vh > 0) {
+      const c = document.createElement('canvas');
+      c.width = vw;
+      c.height = vh;
+      c.getContext('2d')!.drawImage(videoOrCanvas, 0, 0, vw, vh);
+      input = c;
+    }
+  }
+
   // Try up to 3 times with short delays
   for (let i = 0; i < 3; i++) {
     const detection = await api
-      .detectSingleFace(videoOrCanvas, options)
+      .detectSingleFace(input, options)
       .withFaceLandmarks()
       .withFaceDescriptor();
 
     if (detection) return detection.descriptor;
-    if (i < 2) await new Promise(r => setTimeout(r, 300));
+
+    // Re-capture frame for next retry
+    if (i < 2) {
+      await new Promise(r => setTimeout(r, 300));
+      if (videoOrCanvas instanceof HTMLVideoElement && input instanceof HTMLCanvasElement) {
+        input.getContext('2d')!.drawImage(videoOrCanvas, 0, 0, input.width, input.height);
+      }
+    }
   }
   return null;
 }
