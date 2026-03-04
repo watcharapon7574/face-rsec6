@@ -515,6 +515,13 @@ export default function AttendancePage({ session, onLogout }: AttendancePageProp
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-48 h-64 border-4 border-dashed border-blue-400/50 rounded-full" />
               </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="absolute top-3 right-3 z-10 p-2.5 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition active:scale-90"
+                title="รีเฟรช"
+              >
+                <RotateCcw className="w-5 h-5" />
+              </button>
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                 <div className="flex items-center gap-2 justify-center">
                   <ScanFace className="w-5 h-5 text-blue-400 animate-pulse" />

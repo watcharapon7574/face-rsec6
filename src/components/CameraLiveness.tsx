@@ -8,7 +8,7 @@ import {
   type LivenessState,
 } from '@/lib/face-detection';
 import { LIVENESS } from '@/lib/constants';
-import { Camera, Eye, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Camera, Eye, AlertCircle, CheckCircle2, Loader2, RotateCcw } from 'lucide-react';
 
 interface CameraLivenessProps {
   onLivenessComplete: (passed: boolean) => void;
@@ -291,6 +291,15 @@ export default function CameraLiveness({
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{ transform: 'scaleX(-1)' }}
         />
+
+        {/* Refresh button */}
+        <button
+          onClick={() => window.location.reload()}
+          className="absolute top-3 right-3 z-10 p-2.5 bg-black/50 hover:bg-black/70 text-white rounded-full backdrop-blur-sm transition active:scale-90"
+          title="รีเฟรช"
+        >
+          <RotateCcw className="w-5 h-5" />
+        </button>
 
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
